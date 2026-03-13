@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import OpenAI from "openai";
 import { requireAuth } from "../middlewares/auth";
 import { getFinancialSummary, getProfileType, calculateScore, calculateBusinessScore } from "../lib/financialEngine";
 
@@ -30,14 +31,13 @@ let openaiClient: any = null;
 function getOpenAIClient() {
   if (openaiClient) return openaiClient;
 
-  const baseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
-  const apiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
+  const baseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL || process.env.OPENAI_BASE_URL || "https://api.openai.com/v1";
+  const apiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY || process.env.OPENAI_API_KEY;
 
-  if (!baseURL || !apiKey) {
-    throw new Error("AI integration is not configured");
+  if (!apiKey) {
+    throw new Error("AI integration is not configured. Set OPENAI_API_KEY or AI_INTEGRATIONS_OPENAI_API_KEY.");
   }
 
-  const OpenAI = require("openai").default;
   openaiClient = new OpenAI({ apiKey, baseURL });
   return openaiClient;
 }

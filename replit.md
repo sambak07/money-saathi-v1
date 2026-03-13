@@ -112,6 +112,16 @@ users, profiles, income_entries, expense_entries, obligations, savings_entries, 
 
 Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references.
 
+## Deployment
+
+- **Env vars**: `DATABASE_URL` (required), `SESSION_SECRET` (recommended), `OPENAI_API_KEY` (optional), `PORT` (default 8080), `CORS_ORIGIN` (optional), `BASE_PATH` (default `/`)
+- **AI chat**: Supports `OPENAI_API_KEY` (standard) or `AI_INTEGRATIONS_OPENAI_API_KEY` (Replit integration)
+- **Production build**: API bundles via esbuild to `dist/index.cjs`; frontend builds via Vite to `dist/public/`
+- **Full-stack deployment**: Copy frontend build into `artifacts/api-server/dist/public/` — API serves static files in production mode
+- **Vite proxy**: In local dev (non-Replit), Vite proxies `/api/*` to `localhost:8080`
+- **`.env.example`**: Documents all env vars; `dev:standalone` script auto-loads `.env` via `--env-file`
+- **See `README.md`** for full Supabase, local, and Vercel deployment instructions
+
 ## Root Scripts
 
 - `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages

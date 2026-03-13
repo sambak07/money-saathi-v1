@@ -5,18 +5,20 @@
   "type": "module",
   "scripts": {
     "dev": "NODE_ENV=development tsx ./src/index.ts",
+    "dev:standalone": "NODE_ENV=development node --env-file=../../.env --import=tsx ./src/index.ts",
     "build": "tsx ./build.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@workspace/api-zod": "workspace:*",
     "@workspace/db": "workspace:*",
+    "@workspace/integrations-openai-ai-server": "workspace:*",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2",
     "drizzle-orm": "catalog:",
     "express": "^5",
-    "@workspace/integrations-openai-ai-server": "workspace:*"
+    "openai": "^6.27.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",
