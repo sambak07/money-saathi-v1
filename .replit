@@ -6,11 +6,13 @@ id = "artifacts/api-server"
 [[artifacts]]
 id = "artifacts/mockup-sandbox"
 
+run = "pnpm --filter ./artifacts/money-saathi-v1 dev"
+
 [deployment]
 router = "application"
 deploymentTarget = "autoscale"
-build = ["bash", "-c", "pnpm install && BASE_PATH=/ pnpm --filter @workspace/money-saathi-v1 run build && pnpm --filter @workspace/api-server run build && cp -r artifacts/money-saathi-v1/dist/public artifacts/api-server/dist/public"]
-run = ["bash", "-c", "NODE_ENV=production node artifacts/api-server/dist/index.mjs"]
+build = ["bash", "-c", "pnpm install && pnpm --filter ./artifacts/money-saathi-v1 build"]
+run = ["bash", "-c", "pnpm --filter ./artifacts/money-saathi-v1 preview"]
 
 [deployment.postBuild]
 args = ["pnpm", "store", "prune"]
