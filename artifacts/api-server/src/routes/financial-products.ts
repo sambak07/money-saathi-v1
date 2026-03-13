@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { requireAuth } from "../middlewares/auth";
 import { requireAdmin } from "../middlewares/requireAdmin";
 import { db, financialProductsTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 const router: IRouter = Router();
 
@@ -10,7 +10,7 @@ router.get("/financial-products", async (_req, res): Promise<void> => {
   try {
 
     const result = await db.execute(
-      `SELECT * FROM financial_products`
+      sql`SELECT * FROM financial_products`
     );
 
     res.json(result.rows);
