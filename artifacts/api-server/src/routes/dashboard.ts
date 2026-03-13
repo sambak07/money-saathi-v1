@@ -47,6 +47,12 @@ router.get("/dashboard", requireAuth, async (req, res): Promise<void> => {
     totalSavingsBalance: Math.round(summary.totalSavingsBalance * 100) / 100,
     topRecommendation: advisory[0],
     incomeVsExpenses: months,
+    dataPresence: {
+      hasIncome: summary.totalMonthlyIncome > 0,
+      hasExpenses: summary.totalMonthlyExpenses > 0,
+      hasObligations: summary.totalMonthlyObligations > 0,
+      hasSavings: summary.totalSavingsBalance > 0,
+    },
   });
 });
 

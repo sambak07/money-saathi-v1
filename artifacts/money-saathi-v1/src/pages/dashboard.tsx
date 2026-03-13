@@ -2,19 +2,19 @@ import { useGetDashboard } from "@workspace/api-client-react";
 import { Link } from "wouter";
 import { Layout } from "@/components/layout";
 import { Card, Button, Badge } from "@/components/ui-elements";
-import { ArrowRight, TrendingUp, TrendingDown, Landmark, Shield, Lightbulb, AlertTriangle, CheckCircle2, CircleAlert, Plus, Wallet } from "lucide-react";
+import { ArrowRight, TrendingUp, TrendingDown, Landmark, Shield, Lightbulb, AlertTriangle, CheckCircle2, CircleAlert, Plus, Wallet, Receipt, PiggyBank, Banknote, BarChart3 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend } from "recharts";
 
 function formatNu(val: number) {
   return `Nu. ${val.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 }
 
-const VERDICT_STYLES: Record<string, { gradient: string; ringColor: string; textColor: string; badgeVariant: "success" | "warning" | "destructive"; icon: typeof CheckCircle2 }> = {
-  Excellent:  { gradient: "from-emerald-600 to-emerald-500", ringColor: "#10b981", textColor: "text-emerald-600", badgeVariant: "success", icon: CheckCircle2 },
-  Strong:     { gradient: "from-emerald-700 to-primary",     ringColor: "hsl(var(--primary))", textColor: "text-primary", badgeVariant: "success", icon: CheckCircle2 },
-  Moderate:   { gradient: "from-amber-600 to-amber-500",     ringColor: "#f59e0b", textColor: "text-amber-600", badgeVariant: "warning", icon: CircleAlert },
-  Risk:       { gradient: "from-orange-600 to-orange-500",   ringColor: "#f97316", textColor: "text-orange-600", badgeVariant: "warning", icon: AlertTriangle },
-  Critical:   { gradient: "from-red-600 to-red-500",         ringColor: "#ef4444", textColor: "text-red-600", badgeVariant: "destructive", icon: AlertTriangle },
+const VERDICT_STYLES: Record<string, { gradient: string; icon: typeof CheckCircle2 }> = {
+  Excellent:  { gradient: "from-emerald-600 to-emerald-500", icon: CheckCircle2 },
+  Strong:     { gradient: "from-emerald-700 to-primary",     icon: CheckCircle2 },
+  Moderate:   { gradient: "from-amber-600 to-amber-500",     icon: CircleAlert },
+  Risk:       { gradient: "from-orange-600 to-orange-500",   icon: AlertTriangle },
+  Critical:   { gradient: "from-red-600 to-red-500",         icon: AlertTriangle },
 };
 
 function VerdictLayer({ score, category, mainRisk, nextBestAction, hasData }: {
@@ -112,6 +112,22 @@ function EmptyDataNotice() {
   );
 }
 
+function MissingDataHint({ icon: Icon, iconBg, title, message }: {
+  icon: typeof Wallet; iconBg: string; title: string; message: string;
+}) {
+  return (
+    <div className="flex items-start gap-3 mt-2 bg-muted/20 rounded-lg p-2.5">
+      <div className={`p-1.5 rounded-md shrink-0 ${iconBg}`}>
+        <Icon className="w-3 h-3" />
+      </div>
+      <div>
+        <p className="text-xs font-semibold text-foreground">{title}</p>
+        <p className="text-[11px] text-muted-foreground leading-snug">{message}</p>
+      </div>
+    </div>
+  );
+}
+
 function RatioBar({ value, max, thresholds, label, unit }: {
   value: number; max: number;
   thresholds: { good: number; warn: number };
@@ -158,6 +174,8 @@ export default function Dashboard() {
   const verdict = data.verdict || { category: scoreCategory, mainRisk: "Unknown", nextBestAction: "Add financial data", hasData: false };
   const hasData = verdict.hasData;
 
+  const dp = data.dataPresence || { hasIncome: false, hasExpenses: false, hasObligations: false, hasSavings: false };
+
   const chartData = (data.incomeVsExpenses || []).map((item: any) => ({ ...item }));
   const hasChartData = chartData.some((d: any) => d.income > 0 || d.expenses > 0);
 
@@ -202,6 +220,20 @@ export default function Dashboard() {
                 <p className="text-xs text-muted-foreground mt-1">
                   Income {formatNu(data.totalIncome)} − Expenses {formatNu(data.totalExpenses)}
                 </p>
+                {!dp.hasIncome && (
+                  <MissingDataHint
+                    icon={Banknote} iconBg="bg-emerald-500/10 text-emerald-600"
+                    title="No income entered"
+                    message="Add your salary or other income sources to see accurate net savings."
+                  />
+                )}
+                {dp.hasIncome && !dp.hasExpenses && (
+                  <MissingDataHint
+                    icon={Receipt} iconBg="bg-red-500/10 text-red-600"
+                    title="No expenses entered"
+                    message="Add rent, food, utilities, etc. to get a realistic savings picture."
+                  />
+                )}
               </Card>
 
               <Card className="p-5">
@@ -209,14 +241,28 @@ export default function Dashboard() {
                   <div className="p-2 bg-amber-500/10 rounded-lg shrink-0"><Landmark className="w-4 h-4 text-amber-600" /></div>
                   <p className="text-sm text-muted-foreground font-medium">Debt Ratio</p>
                 </div>
-                <RatioBar
-                  value={debtRatio} max={100}
-                  thresholds={{ good: 30, warn: 50 }}
-                  label={`${formatNu(data.totalObligations)} / mo`} unit="%"
-                />
-                <p className="text-xs text-muted-foreground mt-2">
-                  {debtRatio <= 30 ? "Healthy — well within safe limits." : debtRatio <= 50 ? "Elevated — consider reducing debt." : "High — debt is straining your income."}
-                </p>
+                {dp.hasObligations || dp.hasIncome ? (
+                  <>
+                    <RatioBar
+                      value={debtRatio} max={100}
+                      thresholds={{ good: 30, warn: 50 }}
+                      label={`${formatNu(data.totalObligations)} / mo`} unit="%"
+                    />
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {!dp.hasObligations
+                        ? "No loan obligations recorded. Add any EMIs or debt payments for an accurate ratio."
+                        : debtRatio <= 30 ? "Healthy — well within safe limits."
+                        : debtRatio <= 50 ? "Elevated — consider reducing debt."
+                        : "High — debt is straining your income."}
+                    </p>
+                  </>
+                ) : (
+                  <MissingDataHint
+                    icon={Landmark} iconBg="bg-amber-500/10 text-amber-600"
+                    title="No obligations entered"
+                    message="Add loan EMIs, credit card debt, or other monthly payments. If you have none, your debt ratio is 0% — great!"
+                  />
+                )}
               </Card>
 
               <Card className="p-5">
@@ -224,14 +270,24 @@ export default function Dashboard() {
                   <div className="p-2 bg-blue-500/10 rounded-lg shrink-0"><Shield className="w-4 h-4 text-blue-600" /></div>
                   <p className="text-sm text-muted-foreground font-medium">Emergency Fund</p>
                 </div>
-                <RatioBar
-                  value={emergencyMonths} max={12}
-                  thresholds={{ good: 6, warn: 3 }}
-                  label={`${emergencyMonths} months`} unit=" mo"
-                />
-                <p className="text-xs text-muted-foreground mt-2">
-                  {emergencyMonths >= 6 ? "Strong — covers 6+ months of expenses." : emergencyMonths >= 3 ? "Building up — aim for 6 months." : "Low — prioritise building this fund."}
-                </p>
+                {dp.hasSavings ? (
+                  <>
+                    <RatioBar
+                      value={emergencyMonths} max={12}
+                      thresholds={{ good: 6, warn: 3 }}
+                      label={`${emergencyMonths} months`} unit=" mo"
+                    />
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {emergencyMonths >= 6 ? "Strong — covers 6+ months of expenses." : emergencyMonths >= 3 ? "Building up — aim for 6 months." : "Low — prioritise building this fund."}
+                    </p>
+                  </>
+                ) : (
+                  <MissingDataHint
+                    icon={PiggyBank} iconBg="bg-blue-500/10 text-blue-600"
+                    title="No savings recorded"
+                    message="Add your savings accounts and emergency fund balance. This measures how many months of expenses you can cover."
+                  />
+                )}
               </Card>
             </div>
 
@@ -266,8 +322,23 @@ export default function Dashboard() {
                 </div>
               </Card>
             ) : (
-              <Card className="p-8 border-dashed border-2 bg-transparent text-center">
-                <p className="text-muted-foreground text-sm">Income vs Expenses chart will appear once you add income and expense data.</p>
+              <Card className="p-6 border-dashed border-2 bg-transparent flex items-start gap-4">
+                <div className="p-2.5 bg-primary/10 rounded-xl shrink-0">
+                  <BarChart3 className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-sm mb-0.5">Income vs Expenses chart</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    {!dp.hasIncome
+                      ? "Add your income to see this chart. Go to Financial Data and enter your salary or other income sources."
+                      : "Add your monthly expenses to compare against income. The chart will show your spending patterns."}
+                  </p>
+                  <Link href="/data-entry" className="inline-block mt-2">
+                    <Button variant="outline" size="sm" className="gap-1.5">
+                      <Plus className="w-3.5 h-3.5" /> {!dp.hasIncome ? "Add Income" : "Add Expenses"}
+                    </Button>
+                  </Link>
+                </div>
               </Card>
             )}
 

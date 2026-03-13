@@ -41,7 +41,7 @@ artifacts-monorepo/
 
 ## Auth Architecture
 
-- **Cookie-based sessions**: API sets `userId` httpOnly cookie on login/register
+- **Cookie-based sessions**: HMAC-SHA256 signed session tokens (`session` cookie) via `artifacts/api-server/src/lib/session.ts`; `SESSION_SECRET` env var or random on startup; `secure: true` in production only.
 - **Frontend auth**: React Context (`AuthProvider` in `use-auth.tsx`) — NOT React Query for auth state
   - `fetchUser()` calls `/api/auth/me` once on mount
   - `login()`, `register()`, `logout()` update context state directly
@@ -57,12 +57,12 @@ users, profiles, income_entries, expense_entries, obligations, savings_entries, 
 
 - `/login` — Login/Register with split-screen design
 - `/onboarding` — Profile type selection (Individual / Small Business)
-- `/dashboard` — Overview with health score ring, income vs expenses chart, top recommendation
+- `/dashboard` — Verdict Layer (score ring, main risk, next best action), metric cards with granular empty-state hints, income vs expenses chart, top recommendation
 - `/data-entry` — Tabbed CRUD for income, expenses, obligations, savings
 - `/score` — Health score breakdown (4 components: savings, debt, emergency fund, expenses)
 - `/loans` — Loan calculator with EMI, affordability analysis
 - `/advisory` — AI-generated financial recommendations
-- `/reports` — Monthly financial reports with key takeaways
+- `/reports` — Monthly financial reports with verdict strip (main risk + next action) and granular metric hints
 
 ## Key Patterns
 

@@ -9,8 +9,23 @@ import type { AdvisoryItem } from "./advisoryItem";
 import type { DashboardDataIncomeVsExpensesItem } from "./dashboardDataIncomeVsExpensesItem";
 import type { FinancialScore } from "./financialScore";
 
+export interface DashboardDataVerdict {
+  category: string;
+  mainRisk: string;
+  nextBestAction: string;
+  hasData: boolean;
+}
+
+export interface DashboardDataPresence {
+  hasIncome: boolean;
+  hasExpenses: boolean;
+  hasObligations: boolean;
+  hasSavings: boolean;
+}
+
 export interface DashboardData {
   financialScore?: FinancialScore;
+  verdict: DashboardDataVerdict;
   totalIncome: number;
   totalExpenses: number;
   netSavings: number;
@@ -18,4 +33,5 @@ export interface DashboardData {
   totalSavingsBalance: number;
   topRecommendation?: AdvisoryItem;
   incomeVsExpenses?: DashboardDataIncomeVsExpensesItem[];
+  dataPresence: DashboardDataPresence;
 }

@@ -1074,6 +1074,22 @@ components:
       properties:
         financialScore:
           $ref: "#/components/schemas/FinancialScore"
+        verdict:
+          type: object
+          properties:
+            category:
+              type: string
+            mainRisk:
+              type: string
+            nextBestAction:
+              type: string
+            hasData:
+              type: boolean
+          required:
+            - category
+            - mainRisk
+            - nextBestAction
+            - hasData
         totalIncome:
           type: number
         totalExpenses:
@@ -1101,9 +1117,27 @@ components:
               - month
               - income
               - expenses
+        dataPresence:
+          type: object
+          properties:
+            hasIncome:
+              type: boolean
+            hasExpenses:
+              type: boolean
+            hasObligations:
+              type: boolean
+            hasSavings:
+              type: boolean
+          required:
+            - hasIncome
+            - hasExpenses
+            - hasObligations
+            - hasSavings
       required:
         - totalIncome
         - totalExpenses
         - netSavings
         - totalObligations
         - totalSavingsBalance
+        - verdict
+        - dataPresence

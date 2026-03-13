@@ -87,14 +87,22 @@ function ReportCard({ report }: { report: any }) {
             <div className="p-2 bg-emerald-500/10 rounded-lg shrink-0"><PiggyBank className="w-4 h-4 text-emerald-600" /></div>
             <div>
               <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Income</p>
-              <p className="text-lg font-bold">{formatNu(report.totalIncome)}</p>
+              {report.totalIncome > 0 ? (
+                <p className="text-lg font-bold">{formatNu(report.totalIncome)}</p>
+              ) : (
+                <p className="text-xs text-muted-foreground mt-0.5">Not recorded — add income sources for an accurate report.</p>
+              )}
             </div>
           </div>
           <div className="flex items-start gap-3">
             <div className="p-2 bg-red-500/10 rounded-lg shrink-0"><Receipt className="w-4 h-4 text-red-600" /></div>
             <div>
               <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Expenses</p>
-              <p className="text-lg font-bold">{formatNu(report.totalExpenses)}</p>
+              {report.totalExpenses > 0 ? (
+                <p className="text-lg font-bold">{formatNu(report.totalExpenses)}</p>
+              ) : (
+                <p className="text-xs text-muted-foreground mt-0.5">Not recorded — add monthly expenses for a complete picture.</p>
+              )}
             </div>
           </div>
           <div className="flex items-start gap-3">
@@ -112,15 +120,25 @@ function ReportCard({ report }: { report: any }) {
             <div className="p-2 bg-amber-500/10 rounded-lg shrink-0"><Landmark className="w-4 h-4 text-amber-600" /></div>
             <div>
               <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Debt Burden</p>
-              <p className="text-lg font-bold">{formatNu(report.totalDebt)}</p>
-              <p className="text-[10px] text-muted-foreground">{debtToIncome}% of income</p>
+              {report.totalDebt > 0 ? (
+                <>
+                  <p className="text-lg font-bold">{formatNu(report.totalDebt)}</p>
+                  <p className="text-[10px] text-muted-foreground">{debtToIncome}% of income</p>
+                </>
+              ) : (
+                <p className="text-xs text-muted-foreground mt-0.5">None recorded — add any EMIs or loans if applicable.</p>
+              )}
             </div>
           </div>
           <div className="flex items-start gap-3">
             <div className="p-2 bg-blue-500/10 rounded-lg shrink-0"><PiggyBank className="w-4 h-4 text-blue-600" /></div>
             <div>
               <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Savings</p>
-              <p className="text-lg font-bold">{formatNu(report.totalSavings)}</p>
+              {report.totalSavings > 0 ? (
+                <p className="text-lg font-bold">{formatNu(report.totalSavings)}</p>
+              ) : (
+                <p className="text-xs text-muted-foreground mt-0.5">Not recorded — add savings balances to track your reserve.</p>
+              )}
             </div>
           </div>
         </div>
