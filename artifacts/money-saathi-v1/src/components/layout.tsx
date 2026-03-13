@@ -14,7 +14,9 @@ import {
   BookOpen,
   TrendingUp,
   Bot,
-  Globe
+  Globe,
+  Database,
+  Shield
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "./ui-elements";
@@ -87,6 +89,29 @@ export function Layout({ children }: { children: React.ReactNode }) {
           );
         })}
       </div>
+
+      {user?.isAdmin && (
+        <div className="mt-5 mb-2">
+          <div className="flex items-center gap-2 px-4 mb-2">
+            <Shield className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-xs font-bold tracking-wider text-muted-foreground uppercase">Admin</span>
+          </div>
+          <Link href="/admin/products" className="w-full">
+            <div
+              onClick={() => setMobileMenuOpen(false)}
+              className={cn(
+                "flex items-center gap-3 px-4 py-2.5 rounded-xl mb-1 transition-all duration-200 cursor-pointer",
+                location === "/admin/products"
+                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                  : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
+              )}
+            >
+              <Database className="h-4 w-4" />
+              <span className="font-medium text-sm">Financial Products</span>
+            </div>
+          </Link>
+        </div>
+      )}
     </>
   );
 

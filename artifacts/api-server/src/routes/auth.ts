@@ -34,6 +34,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     email: user.email,
     name: user.name,
     hasProfile: false,
+    isAdmin: user.isAdmin,
   });
 });
 
@@ -68,6 +69,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     name: user.name,
     hasProfile: !!profile,
     profileType: profile?.profileType || null,
+    isAdmin: user.isAdmin,
   });
 });
 
@@ -86,6 +88,7 @@ router.get("/auth/me", requireAuth, async (req, res): Promise<void> => {
     name: user.name,
     hasProfile: !!profile,
     profileType: profile?.profileType || null,
+    isAdmin: user.isAdmin,
   });
 });
 

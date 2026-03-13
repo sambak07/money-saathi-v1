@@ -8,3 +8,4 @@ export * from "./financialScores";
 export * from "./loanCalculations";
 export * from "./reports";
 export * from "./financialSnapshots";
+export * from "./financialProducts";

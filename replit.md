@@ -94,6 +94,7 @@ users, profiles, income_entries, expense_entries, obligations, savings_entries, 
 - `/intelligence/literacy` — Financial literacy center (Interest, Debt Ratio, EMI, Emergency Funds, Long-Term Savings)
 - `/intelligence/invest` — Investment guide (Stock Market, Dividends, FD vs Equity, Wealth Planning)
 - `/intelligence/ask-ai` — AI financial assistant chat (SSE streaming, OpenAI gpt-5.2, Bhutan financial context)
+- `/admin/products` — Admin-only CRUD interface for financial products database (visible only to admin users)
 
 ## Key Patterns
 
@@ -117,7 +118,7 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 
 ### `artifacts/api-server` (`@workspace/api-server`)
 
-Express 5 API server with cookie-parser. Routes at `/api`: auth, profiles, income, expenses, obligations, savings, scores, loans, advisory, reports, dashboard, timeline, ask-ai. Snapshot service auto-updates current month's financial summary on every CRUD operation (atomic upsert). AI chat uses OpenAI integration (lazy-initialized, SSE streaming).
+Express 5 API server with cookie-parser. Routes at `/api`: auth, profiles, income, expenses, obligations, savings, scores, loans, advisory, reports, dashboard, timeline, ask-ai, financial-products. Snapshot service auto-updates current month's financial summary on every CRUD operation (atomic upsert). AI chat uses OpenAI integration (lazy-initialized, SSE streaming). Financial products CRUD has admin-only write middleware (`requireAdmin`). Users table has `is_admin` boolean column. Seed script auto-populates financial products on first startup.
 
 ### `artifacts/money-saathi-v1` (`@workspace/money-saathi-v1`)
 

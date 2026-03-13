@@ -6,6 +6,7 @@ interface User {
   email: string;
   hasProfile: boolean;
   profileType: "individual" | "small_business" | null;
+  isAdmin: boolean;
 }
 
 interface AuthState {

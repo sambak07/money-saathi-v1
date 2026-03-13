@@ -13,6 +13,7 @@ import reportsRouter from "./reports";
 import dashboardRouter from "./dashboard";
 import timelineRouter from "./timeline";
 import askAiRouter from "./ask-ai";
+import financialProductsRouter from "./financial-products";
 
 const router: IRouter = Router();
 
@@ -30,5 +31,6 @@ router.use(reportsRouter);
 router.use(dashboardRouter);
 router.use(timelineRouter);
 router.use(askAiRouter);
+router.use(financialProductsRouter);
 
 export default router;

@@ -16,6 +16,7 @@ import BankComparison from "@/pages/bhutan-intelligence/bank-comparison";
 import FinancialLiteracy from "@/pages/bhutan-intelligence/financial-literacy";
 import InvestmentGuide from "@/pages/bhutan-intelligence/investment-guide";
 import AskAI from "@/pages/bhutan-intelligence/ask-ai";
+import AdminFinancialProducts from "@/pages/admin/financial-products";
 
 function LoadingSpinner() {
   return (
@@ -84,6 +85,9 @@ function AppRoutes() {
       </Route>
       <Route path="/intelligence/ask-ai">
         <ProtectedRoute component={AskAI} />
+      </Route>
+      <Route path="/admin/products">
+        <ProtectedRoute component={AdminFinancialProducts} />
       </Route>
       
       <Route>
