@@ -85,6 +85,7 @@ export default function Login() {
                   <Input 
                     id="name" 
                     placeholder="Sonam Dorji" 
+                    autoComplete="name"
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                     required={!isLogin}
@@ -101,6 +102,7 @@ export default function Login() {
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
                   required
+                  autoComplete="email"
                 />
               </div>
 
@@ -114,6 +116,7 @@ export default function Login() {
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                   required
                   minLength={6}
+                  autoComplete={isLogin ? "current-password" : "new-password"}
                 />
               </div>
 
