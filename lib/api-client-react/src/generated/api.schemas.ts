@@ -399,6 +399,8 @@ export interface FinancialSnapshotData {
   totalObligations: number;
   debtRatio: number;
   financialScore: number;
+  emergencyFundMonths: number;
+  profitMargin: number;
   createdAt: string;
 }
 

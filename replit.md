@@ -84,7 +84,7 @@ users, profiles, income_entries, expense_entries, obligations, savings_entries, 
 
 - `/login` — Login/Register with split-screen design
 - `/onboarding` — Profile type selection (Individual / Small Business)
-- `/dashboard` — Mode-aware: Verdict Layer, metric cards (Individual: Net Savings/Debt Ratio/Emergency Fund, Business: Net Profit/Debt-to-Revenue/Cash Reserve), Financial Insights Engine (automated insight cards with severity, explanation, action, literacy links), Best Next Options (Recommendation Matching Engine — up to 3 matched bank products or caution card), Income vs Expenses chart, Financial Timeline (5 metrics: Health Score/Income/Expenses/Net Savings/Debt Ratio), top recommendation
+- `/dashboard` — Mode-aware: Verdict Layer, metric cards (Individual: Net Savings/Debt Ratio/Emergency Fund, Business: Net Profit/Debt-to-Revenue/Cash Reserve), Financial Insights Engine (automated insight cards with severity, explanation, action, literacy links), Best Next Options (Recommendation Matching Engine — up to 3 matched bank products or caution card), Income vs Expenses chart, Financial Progress section (4 summary cards with trend indicators, 4 mini charts: Score Trend/Savings or Profit Trend/Debt Trend/Reserve Growth, Financial Milestones timeline), top recommendation
 - `/data-entry` — Mode-aware tabbed CRUD (Individual: Income/Expenses/Personal Loans/Savings, Business: Revenue/Operating Expenses/Business Loans/Cash Balance)
 - `/score` — Mode-aware health score breakdown (Individual: Savings/Debt/Emergency/Expenses, Business: Profit Margin/Debt-to-Revenue/Cash Reserve/Revenue Stability)
 - `/loans` — Loan calculator with EMI, affordability analysis
@@ -126,7 +126,7 @@ React + Vite frontend. Uses TailwindCSS v4, Recharts for charts, Framer Motion f
 
 ### `lib/db` (`@workspace/db`)
 
-Drizzle ORM with PostgreSQL. 10 tables for the financial platform (includes `financial_snapshots` for monthly timeline data).
+Drizzle ORM with PostgreSQL. 10 tables for the financial platform (includes `financial_snapshots` with monthly data: income, expenses, savings, obligations, debt ratio, score, emergency fund months, profit margin).
 
 ### `lib/api-spec` (`@workspace/api-spec`)
 

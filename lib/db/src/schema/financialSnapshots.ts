@@ -11,6 +11,8 @@ export const financialSnapshotsTable = pgTable("financial_snapshots", {
   totalObligations: doublePrecision("total_obligations").notNull().default(0),
   debtRatio: doublePrecision("debt_ratio").notNull().default(0),
   financialScore: doublePrecision("financial_score").notNull().default(0),
+  emergencyFundMonths: doublePrecision("emergency_fund_months").notNull().default(0),
+  profitMargin: doublePrecision("profit_margin").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (table) => [
   unique("financial_snapshots_user_month").on(table.userId, table.month),
