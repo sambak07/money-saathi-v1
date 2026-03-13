@@ -31,7 +31,8 @@ function crudRoutes<T extends Record<string, any>>(
   router.post(basePath, requireAuth, async (req: Request, res: Response): Promise<void> => {
     const v = validateBody(req.body);
     if (!v.success) { res.status(400).json({ message: v.error }); return; }
-    const [row] = await db.insert(table).values({ ...v.data, userId: req.userId! }).returning();
+    const result = await db.insert(table).values({ ...v.data, userId: req.userId! }).returning();
+    const row = Array.isArray(result) ? result[0] : undefined;
     res.status(201).json(row);
   });
 
@@ -40,8 +41,9 @@ function crudRoutes<T extends Record<string, any>>(
     if (!id) { res.status(400).json({ message: "Invalid id" }); return; }
     const v = validateBody(req.body);
     if (!v.success) { res.status(400).json({ message: v.error }); return; }
-    const [row] = await db.update(table).set({ ...v.data, updatedAt: new Date() })
+    const result = await db.update(table).set({ ...v.data, updatedAt: new Date() })
       .where(and(eq(table.id, id), eq(table.userId, req.userId!))).returning();
+    const row = Array.isArray(result) ? result[0] : undefined;
     if (!row) { res.status(404).json({ message: "Not found" }); return; }
     res.json(row);
   });
@@ -49,7 +51,8 @@ function crudRoutes<T extends Record<string, any>>(
   router.delete(`${basePath}/:id`, requireAuth, async (req: Request, res: Response): Promise<void> => {
     const id = parseId(req);
     if (!id) { res.status(400).json({ message: "Invalid id" }); return; }
-    const [row] = await db.delete(table).where(and(eq(table.id, id), eq(table.userId, req.userId!))).returning();
+    const result = await db.delete(table).where(and(eq(table.id, id), eq(table.userId, req.userId!))).returning();
+    const row = Array.isArray(result) ? result[0] : undefined;
     if (!row) { res.status(404).json({ message: "Not found" }); return; }
     res.json({ message: "Deleted" });
   });
