@@ -162,7 +162,7 @@ export default function Reports() {
   }
 
   const handleGenerate = () => {
-    generateReport.mutate({});
+    generateReport.mutate(undefined as any);
   };
 
   return (

@@ -23,7 +23,7 @@ export default function Score() {
   }
 
   const handleRecalculate = () => {
-    calculateScore.mutate({});
+    calculateScore.mutate(undefined as any);
   };
 
   const getScoreColor = (val: number) => {

@@ -94,6 +94,7 @@ users, profiles, income_entries, expense_entries, obligations, savings_entries, 
 - `/intelligence/literacy` — Financial literacy center (Interest, Debt Ratio, EMI, Emergency Funds, Long-Term Savings)
 - `/intelligence/invest` — Investment guide (Stock Market, Dividends, FD vs Equity, Wealth Planning)
 - `/intelligence/ask-ai` — AI financial assistant chat (SSE streaming, OpenAI gpt-5.2, Bhutan financial context)
+- `/vault` — Financial Vault: secure storage for bank accounts, fixed deposits, loans, insurance policies, and investments with reminders
 - `/admin/products` — Admin-only CRUD interface for financial products database with data freshness/confidence badges (visible only to admin users)
 
 ## Key Patterns
