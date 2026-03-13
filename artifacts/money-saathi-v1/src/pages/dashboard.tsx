@@ -6,6 +6,7 @@ import { Layout } from "@/components/layout";
 import { Card, Button, Badge } from "@/components/ui-elements";
 import { ArrowRight, TrendingUp, TrendingDown, Landmark, Shield, Lightbulb, AlertTriangle, CheckCircle2, CircleAlert, Plus, Wallet, Receipt, PiggyBank, Banknote, BarChart3, Building2, User, Activity } from "lucide-react";
 import { InsightsPanel } from "@/components/insights-panel";
+import { BestNextOptions } from "@/components/best-next-options";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend, LineChart, Line, Area, AreaChart } from "recharts";
 
 function formatNu(val: number) {
@@ -510,6 +511,10 @@ export default function Dashboard() {
 
             {(data as any).insights && (data as any).insights.length > 0 && (
               <InsightsPanel insights={(data as any).insights} />
+            )}
+
+            {(data as any).bestNextOptions && (
+              <BestNextOptions data={(data as any).bestNextOptions} />
             )}
 
             {hasChartData ? (

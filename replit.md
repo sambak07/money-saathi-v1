@@ -84,11 +84,11 @@ users, profiles, income_entries, expense_entries, obligations, savings_entries, 
 
 - `/login` — Login/Register with split-screen design
 - `/onboarding` — Profile type selection (Individual / Small Business)
-- `/dashboard` — Mode-aware: Verdict Layer, metric cards (Individual: Net Savings/Debt Ratio/Emergency Fund, Business: Net Profit/Debt-to-Revenue/Cash Reserve), Financial Insights Engine (automated insight cards with severity, explanation, action, literacy links), Income vs Expenses chart, Financial Timeline (5 metrics: Health Score/Income/Expenses/Net Savings/Debt Ratio), top recommendation
+- `/dashboard` — Mode-aware: Verdict Layer, metric cards (Individual: Net Savings/Debt Ratio/Emergency Fund, Business: Net Profit/Debt-to-Revenue/Cash Reserve), Financial Insights Engine (automated insight cards with severity, explanation, action, literacy links), Best Next Options (Recommendation Matching Engine — up to 3 matched bank products or caution card), Income vs Expenses chart, Financial Timeline (5 metrics: Health Score/Income/Expenses/Net Savings/Debt Ratio), top recommendation
 - `/data-entry` — Mode-aware tabbed CRUD (Individual: Income/Expenses/Personal Loans/Savings, Business: Revenue/Operating Expenses/Business Loans/Cash Balance)
 - `/score` — Mode-aware health score breakdown (Individual: Savings/Debt/Emergency/Expenses, Business: Profit Margin/Debt-to-Revenue/Cash Reserve/Revenue Stability)
 - `/loans` — Loan calculator with EMI, affordability analysis
-- `/advisory` — AI-generated financial recommendations
+- `/advisory` — AI-generated financial recommendations + Best Next Options (matched bank products)
 - `/reports` — Monthly financial reports with verdict strip (main risk + next action) and granular metric hints
 - `/intelligence/banks` — Bank product comparison tables (Savings, FD, Housing/Personal/Education Loans)
 - `/intelligence/literacy` — Financial literacy center (Interest, Debt Ratio, EMI, Emergency Funds, Long-Term Savings)
@@ -118,7 +118,7 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 
 ### `artifacts/api-server` (`@workspace/api-server`)
 
-Express 5 API server with cookie-parser. Routes at `/api`: auth, profiles, income, expenses, obligations, savings, scores, loans, advisory, reports, dashboard, timeline, ask-ai, financial-products. Snapshot service auto-updates current month's financial summary on every CRUD operation (atomic upsert). AI chat uses OpenAI integration (lazy-initialized, SSE streaming). Financial products CRUD has admin-only write middleware (`requireAdmin`). Users table has `is_admin` boolean column. Seed script auto-populates financial products on first startup.
+Express 5 API server with cookie-parser. Routes at `/api`: auth, profiles, income, expenses, obligations, savings, scores, loans, advisory, reports, dashboard, timeline, ask-ai, financial-products. Snapshot service auto-updates current month's financial summary on every CRUD operation (atomic upsert). AI chat uses OpenAI integration (lazy-initialized, SSE streaming). Financial products CRUD has admin-only write middleware (`requireAdmin`). Users table has `is_admin` boolean column. Seed script auto-populates financial products on first startup. Recommendation Matching Engine (`recommendationEngine.ts`) matches user financial condition to bank products from DB — returns up to 3 products and optional caution message. Included in both dashboard and advisory API responses as `bestNextOptions`.
 
 ### `artifacts/money-saathi-v1` (`@workspace/money-saathi-v1`)
 

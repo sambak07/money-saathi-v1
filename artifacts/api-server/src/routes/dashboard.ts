@@ -8,6 +8,7 @@ import {
   calculateBusinessScore, generateBusinessAdvisory, generateBusinessVerdict,
 } from "../lib/financialEngine";
 import { generateIndividualInsights, generateBusinessInsights } from "../lib/insightsEngine";
+import { generateProductRecommendations } from "../lib/recommendationEngine";
 
 const router: IRouter = Router();
 
@@ -100,6 +101,12 @@ router.get("/dashboard", requireAuth, async (req, res): Promise<void> => {
       hasSavings: summary.totalSavingsBalance > 0,
     },
     insights,
+    bestNextOptions: await generateProductRecommendations(
+      summary,
+      profileType,
+      isBusiness ? undefined : scoreData,
+      isBusiness ? calculateBusinessScore(summary) : undefined,
+    ).catch(() => ({ recommendations: [], cautionMessage: null })),
   });
 });
 

@@ -2,6 +2,7 @@ import { useGetAdvisory } from "@workspace/api-client-react";
 import { Layout } from "@/components/layout";
 import { Card, Badge } from "@/components/ui-elements";
 import { ShieldAlert, TrendingUp, PiggyBank, Target, Lightbulb } from "lucide-react";
+import { BestNextOptions } from "@/components/best-next-options";
 
 export default function Advisory() {
   const { data, isLoading } = useGetAdvisory();
@@ -100,6 +101,10 @@ export default function Advisory() {
             </Card>
           ))}
         </div>
+
+        {(data as any)?.bestNextOptions && (
+          <BestNextOptions data={(data as any).bestNextOptions} />
+        )}
       </div>
     </Layout>
   );
