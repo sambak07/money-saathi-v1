@@ -18,9 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api", router);
 
 if (process.env.NODE_ENV === "production") {
-  const currentDir = typeof __dirname !== "undefined"
-    ? __dirname
-    : path.dirname(decodeURIComponent(new URL(import.meta.url).pathname));
+  const currentDir = path.dirname(decodeURIComponent(new URL(import.meta.url).pathname));
   const publicDir = path.resolve(currentDir, "public");
   app.use(express.static(publicDir));
   app.get("/{path}", (_req, res) => {

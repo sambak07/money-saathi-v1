@@ -159,7 +159,7 @@ Deploy everything to Railway, Render, or Fly.io. The API server serves both the 
    cp -r artifacts/money-saathi-v1/dist/public artifacts/api-server/dist/public
    ```
 
-3. Start: `node artifacts/api-server/dist/index.cjs`
+3. Start: `node artifacts/api-server/dist/index.mjs`
 
 4. Environment variables:
    ```
@@ -186,7 +186,7 @@ Deploy everything to Railway, Render, or Fly.io. The API server serves both the 
    OPENAI_API_KEY=sk-...  (optional)
    ```
 3. Build command: `pnpm run build`
-4. Start command: `node dist/index.cjs`
+4. Start command: `node dist/index.mjs`
 
 #### Deploy the frontend to Vercel
 
