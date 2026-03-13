@@ -7,12 +7,13 @@ import { eq } from "drizzle-orm";
 const router: IRouter = Router();
 
 router.get("/financial-products", async (_req, res): Promise<void> => {
-  const products = await db
-    .select()
-    .from(financialProductsTable)
-    .orderBy(financialProductsTable.productCategory, financialProductsTable.institutionName);
-
-  res.json(products);
+  try {
+    const rows = await db.select().from(financialProductsTable);
+    res.json(rows);
+  } catch (error) {
+    console.error("financial-products route error:", error);
+    res.status(500).json({ message: "Failed to load financial products", error: String(error) });
+  }
 });
 
 router.post("/financial-products", requireAuth, requireAdmin, async (req, res): Promise<void> => {
