@@ -1,5 +1,5 @@
 import app from "./app";
-import { seedFinancialProducts } from "./lib/seedProducts";
+// import { seedFinancialProducts } from "./lib/seedProducts";
 
 const port = Number(process.env["PORT"]) || 8080;
 
