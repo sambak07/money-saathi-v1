@@ -4,10 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --config vite.config.ts --host 0.0.0.0",
-    "build": "vite build --config vite.config.ts",
-    "preview": "node serve.js",
-    "serve": "node serve.js",
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port ${PORT:-3000}",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
