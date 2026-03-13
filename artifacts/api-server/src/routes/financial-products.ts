@@ -9,11 +9,11 @@ const router: IRouter = Router();
 router.get("/financial-products", async (_req, res): Promise<void> => {
   try {
 
-    const rows = await db.execute(
+    const result = await db.execute(
       `SELECT * FROM financial_products`
     );
 
-    res.json(rows.rows);
+    res.json(result.rows);
 
   } catch (error) {
     console.error("financial-products route error:", error);
