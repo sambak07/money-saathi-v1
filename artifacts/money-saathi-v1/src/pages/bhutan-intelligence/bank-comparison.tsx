@@ -92,11 +92,12 @@ function SavingsTable({ products }: { products: Product[] }) {
 function FDTable({ products }: { products: Product[] }) {
   return (
     <TableWrapper>
-      <thead><tr><Th>Bank</Th><Th>Interest Rates</Th><Th>Min Deposit</Th><Th>Features</Th><Th>Data Source</Th></tr></thead>
+      <thead><tr><Th>Bank</Th><Th>Tenure</Th><Th>Interest Rate</Th><Th>Min Deposit</Th><Th>Features</Th><Th>Data Source</Th></tr></thead>
       <tbody>
         {products.map(p => (
           <tr key={p.id} className="hover:bg-muted/10 transition-colors">
             <Td><span className="font-semibold">{p.institutionName}</span></Td>
+            <Td>{p.tenure || "—"}</Td>
             <Td highlight>{p.interestRate || "—"}</Td>
             <Td>{p.minimumBalance || "—"}</Td>
             <Td><span className="text-muted-foreground">{p.keyFeatures || "—"}</span></Td>

@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, real } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, real, integer, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -15,6 +15,18 @@ export const financialProductsTable = pgTable("financial_products", {
   sourceUrl: text("source_url"),
   lastUpdated: timestamp("last_updated", { withTimezone: true }).notNull().defaultNow(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+
+  interestRateMin: real("interest_rate_min"),
+  interestRateMax: real("interest_rate_max"),
+  minimumBalanceValue: real("minimum_balance_value"),
+  tenureMonthsMin: integer("tenure_months_min"),
+  tenureMonthsMax: integer("tenure_months_max"),
+  feeValue: real("fee_value"),
+
+  productSubcategory: text("product_subcategory"),
+  targetSegment: text("target_segment"),
+  currency: text("currency").default("BTN"),
+  isActive: boolean("is_active").default(true),
 });
 
 export const insertFinancialProductSchema = createInsertSchema(financialProductsTable).omit({

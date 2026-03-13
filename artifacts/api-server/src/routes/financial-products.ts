@@ -16,7 +16,13 @@ router.get("/financial-products", requireAuth, async (_req, res): Promise<void> 
 });
 
 router.post("/financial-products", requireAuth, requireAdmin, async (req, res): Promise<void> => {
-  const { institutionName, productCategory, productName, interestRate, minimumBalance, tenure, fees, keyFeatures, sourceUrl } = req.body;
+  const {
+    institutionName, productCategory, productName,
+    interestRate, minimumBalance, tenure, fees, keyFeatures, sourceUrl,
+    interestRateMin, interestRateMax, minimumBalanceValue,
+    tenureMonthsMin, tenureMonthsMax, feeValue,
+    productSubcategory, targetSegment, currency, isActive,
+  } = req.body;
 
   if (!institutionName || !productCategory || !productName) {
     res.status(400).json({ message: "Institution name, product category, and product name are required" });
@@ -35,6 +41,16 @@ router.post("/financial-products", requireAuth, requireAdmin, async (req, res): 
       fees: fees || null,
       keyFeatures: keyFeatures || null,
       sourceUrl: sourceUrl || null,
+      interestRateMin: interestRateMin ?? null,
+      interestRateMax: interestRateMax ?? null,
+      minimumBalanceValue: minimumBalanceValue ?? null,
+      tenureMonthsMin: tenureMonthsMin ?? null,
+      tenureMonthsMax: tenureMonthsMax ?? null,
+      feeValue: feeValue ?? null,
+      productSubcategory: productSubcategory || null,
+      targetSegment: targetSegment || null,
+      currency: currency || "BTN",
+      isActive: isActive ?? true,
       lastUpdated: new Date(),
     })
     .returning();
@@ -50,27 +66,46 @@ router.put("/financial-products/:id", requireAuth, requireAdmin, async (req, res
     return;
   }
 
-  const { institutionName, productCategory, productName, interestRate, minimumBalance, tenure, fees, keyFeatures, sourceUrl } = req.body;
+  const {
+    institutionName, productCategory, productName,
+    interestRate, minimumBalance, tenure, fees, keyFeatures, sourceUrl,
+    interestRateMin, interestRateMax, minimumBalanceValue,
+    tenureMonthsMin, tenureMonthsMax, feeValue,
+    productSubcategory, targetSegment, currency, isActive,
+  } = req.body;
 
   if (!institutionName || !productCategory || !productName) {
     res.status(400).json({ message: "Institution name, product category, and product name are required" });
     return;
   }
 
+  const updates: Record<string, unknown> = {
+    institutionName,
+    productCategory,
+    productName,
+    interestRate: interestRate || null,
+    minimumBalance: minimumBalance || null,
+    tenure: tenure || null,
+    fees: fees || null,
+    keyFeatures: keyFeatures || null,
+    sourceUrl: sourceUrl || null,
+    lastUpdated: new Date(),
+  };
+
+  if (interestRateMin !== undefined) updates.interestRateMin = interestRateMin;
+  if (interestRateMax !== undefined) updates.interestRateMax = interestRateMax;
+  if (minimumBalanceValue !== undefined) updates.minimumBalanceValue = minimumBalanceValue;
+  if (tenureMonthsMin !== undefined) updates.tenureMonthsMin = tenureMonthsMin;
+  if (tenureMonthsMax !== undefined) updates.tenureMonthsMax = tenureMonthsMax;
+  if (feeValue !== undefined) updates.feeValue = feeValue;
+  if (productSubcategory !== undefined) updates.productSubcategory = productSubcategory || null;
+  if (targetSegment !== undefined) updates.targetSegment = targetSegment || null;
+  if (currency !== undefined) updates.currency = currency || "BTN";
+  if (isActive !== undefined) updates.isActive = isActive;
+
   const [product] = await db
     .update(financialProductsTable)
-    .set({
-      institutionName,
-      productCategory,
-      productName,
-      interestRate: interestRate || null,
-      minimumBalance: minimumBalance || null,
-      tenure: tenure || null,
-      fees: fees || null,
-      keyFeatures: keyFeatures || null,
-      sourceUrl: sourceUrl || null,
-      lastUpdated: new Date(),
-    })
+    .set(updates)
     .where(eq(financialProductsTable.id, id))
     .returning();
 
