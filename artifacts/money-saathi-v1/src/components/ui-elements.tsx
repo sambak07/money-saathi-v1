@@ -62,6 +62,49 @@ export function Label({ className, ...props }: React.LabelHTMLAttributes<HTMLLab
   );
 }
 
+export function InfoTooltip({ text, className }: { text: string; className?: string }) {
+  const [open, setOpen] = React.useState(false);
+  const id = React.useId();
+  const tipId = `tip-${id}`;
+  const close = React.useCallback(() => setOpen(false), []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
+    const onClick = () => close();
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("click", onClick, true);
+    return () => { document.removeEventListener("keydown", onKey); document.removeEventListener("click", onClick, true); };
+  }, [open, close]);
+
+  return (
+    <span className={cn("relative inline-flex", className)}>
+      <button
+        type="button"
+        aria-label="More info"
+        aria-describedby={open ? tipId : undefined}
+        aria-expanded={open}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+        onClick={(e) => { e.stopPropagation(); setOpen(o => !o); }}
+        className="text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 rounded-sm"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clipRule="evenodd" />
+        </svg>
+      </button>
+      {open && (
+        <span id={tipId} role="tooltip" className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 px-3 py-2 text-xs leading-relaxed font-normal text-white bg-foreground rounded-lg shadow-lg pointer-events-none">
+          {text}
+          <span className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-foreground" />
+        </span>
+      )}
+    </span>
+  );
+}
+
 export function Badge({ className, variant = "default", ...props }: React.HTMLAttributes<HTMLDivElement> & { variant?: "default" | "success" | "warning" | "destructive" }) {
   const variants = {
     default: "bg-primary/10 text-primary",

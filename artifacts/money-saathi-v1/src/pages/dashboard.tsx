@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useGetDashboard } from "@workspace/api-client-react";
 import { Link } from "wouter";
 import { Layout } from "@/components/layout";
-import { Card, Button, Badge } from "@/components/ui-elements";
+import { Card, Button, Badge, InfoTooltip } from "@/components/ui-elements";
 import { ArrowRight, TrendingUp, TrendingDown, Landmark, Shield, Lightbulb, AlertTriangle, CheckCircle2, CircleAlert, Plus, Wallet, Receipt, PiggyBank, Banknote, BarChart3, Building2, User } from "lucide-react";
 import { InsightsPanel } from "@/components/insights-panel";
 import { BestNextOptions } from "@/components/best-next-options";
@@ -192,6 +192,7 @@ function IndividualMetrics({ data, dp }: { data: any; dp: any }) {
             {savingsPositive ? <TrendingUp className="w-4 h-4 text-emerald-600" /> : <TrendingDown className="w-4 h-4 text-red-600" />}
           </div>
           <p className="text-sm text-muted-foreground font-medium">Net Savings</p>
+          <InfoTooltip text="Income minus expenses and loan payments. A positive number means you're saving; negative means you're spending more than you earn." />
         </div>
         <p className={`text-2xl font-bold mt-2 ${savingsPositive ? "text-emerald-600" : "text-red-600"}`}>
           {savingsPositive ? "" : "−"}{formatNu(Math.abs(netSavings))}
@@ -211,6 +212,7 @@ function IndividualMetrics({ data, dp }: { data: any; dp: any }) {
         <div className="flex items-center gap-3 mb-3">
           <div className="p-2 bg-amber-500/10 rounded-lg shrink-0"><Landmark className="w-4 h-4 text-amber-600" /></div>
           <p className="text-sm text-muted-foreground font-medium">Debt Ratio</p>
+          <InfoTooltip text="Percentage of monthly income going to loan EMIs and debt payments. Below 30% is healthy, above 50% is risky." />
         </div>
         {dp.hasObligations || dp.hasIncome ? (
           <>
@@ -228,6 +230,7 @@ function IndividualMetrics({ data, dp }: { data: any; dp: any }) {
         <div className="flex items-center gap-3 mb-3">
           <div className="p-2 bg-blue-500/10 rounded-lg shrink-0"><Shield className="w-4 h-4 text-blue-600" /></div>
           <p className="text-sm text-muted-foreground font-medium">Emergency Fund</p>
+          <InfoTooltip text="How many months of expenses your savings can cover if income stops. 6+ months is the recommended target." />
         </div>
         {dp.hasSavings ? (
           <>
@@ -260,6 +263,7 @@ function BusinessMetrics({ data, dp }: { data: any; dp: any }) {
             {profitable ? <TrendingUp className="w-4 h-4 text-emerald-600" /> : <TrendingDown className="w-4 h-4 text-red-600" />}
           </div>
           <p className="text-sm text-muted-foreground font-medium">Net Profit</p>
+          <InfoTooltip text="Revenue minus operating expenses and loan payments. A positive number means the business is profitable." />
         </div>
         <p className={`text-2xl font-bold mt-2 ${profitable ? "text-emerald-600" : "text-red-600"}`}>
           {profitable ? "" : "−"}{formatNu(Math.abs(netProfit))}
@@ -284,6 +288,7 @@ function BusinessMetrics({ data, dp }: { data: any; dp: any }) {
         <div className="flex items-center gap-3 mb-3">
           <div className="p-2 bg-amber-500/10 rounded-lg shrink-0"><Landmark className="w-4 h-4 text-amber-600" /></div>
           <p className="text-sm text-muted-foreground font-medium">Debt-to-Revenue</p>
+          <InfoTooltip text="Percentage of monthly revenue going to business loan payments. Below 30% is healthy, above 50% puts cash flow at risk." />
         </div>
         {dp.hasObligations || dp.hasIncome ? (
           <>
@@ -301,6 +306,7 @@ function BusinessMetrics({ data, dp }: { data: any; dp: any }) {
         <div className="flex items-center gap-3 mb-3">
           <div className="p-2 bg-blue-500/10 rounded-lg shrink-0"><Shield className="w-4 h-4 text-blue-600" /></div>
           <p className="text-sm text-muted-foreground font-medium">Cash Reserve</p>
+          <InfoTooltip text="How many months of operating expenses your cash balance can cover. 3+ months is recommended for business continuity." />
         </div>
         {dp.hasSavings ? (
           <>
@@ -380,14 +386,30 @@ export default function Dashboard() {
           <EmptyDataNotice isBusiness={isBusiness} />
         ) : (
           <>
+            <div>
+              <h2 className="text-lg font-bold text-foreground mb-1">Key Metrics</h2>
+              <p className="text-sm text-muted-foreground mb-4">Your core financial indicators at a glance.</p>
+            </div>
             {isBusiness ? <BusinessMetrics data={data} dp={dp} /> : <IndividualMetrics data={data} dp={dp} />}
 
             {(data as any).insights && (data as any).insights.length > 0 && (
-              <InsightsPanel insights={(data as any).insights} />
+              <>
+                <div className="mt-2">
+                  <h2 className="text-lg font-bold text-foreground mb-1">Insights</h2>
+                  <p className="text-sm text-muted-foreground mb-4">Observations based on your financial data.</p>
+                </div>
+                <InsightsPanel insights={(data as any).insights} />
+              </>
             )}
 
             {(data as any).bestNextOptions && (
-              <BestNextOptions data={(data as any).bestNextOptions} />
+              <>
+                <div className="mt-2">
+                  <h2 className="text-lg font-bold text-foreground mb-1">Recommended Products</h2>
+                  <p className="text-sm text-muted-foreground mb-4">Bhutanese financial products matched to your profile.</p>
+                </div>
+                <BestNextOptions data={(data as any).bestNextOptions} />
+              </>
             )}
 
             {hasChartData ? (

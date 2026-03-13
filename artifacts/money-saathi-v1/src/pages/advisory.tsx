@@ -1,8 +1,9 @@
 import { useGetAdvisory } from "@workspace/api-client-react";
 import { Layout } from "@/components/layout";
-import { Card, Badge } from "@/components/ui-elements";
-import { ShieldAlert, TrendingUp, PiggyBank, Target, Lightbulb } from "lucide-react";
+import { Card, Badge, Button } from "@/components/ui-elements";
+import { ShieldAlert, TrendingUp, PiggyBank, Target, Lightbulb, Plus, MessageSquare } from "lucide-react";
 import { BestNextOptions } from "@/components/best-next-options";
+import { Link } from "wouter";
 
 export default function Advisory() {
   const { data, isLoading } = useGetAdvisory();
@@ -42,6 +43,28 @@ export default function Advisory() {
       </div>
 
       <div className="flex flex-col gap-6">
+        {(!data || (!data.topRecommendation && (!data.recommendations || data.recommendations.length === 0))) && (
+          <Card className="p-10 border-dashed border-2 bg-transparent">
+            <div className="flex flex-col items-center text-center max-w-lg mx-auto">
+              <div className="p-4 bg-primary/10 rounded-2xl mb-4">
+                <MessageSquare className="w-8 h-8 text-primary" />
+              </div>
+              <h2 className="text-xl font-bold mb-2">No Advisory Available Yet</h2>
+              <p className="text-muted-foreground mb-2 leading-relaxed">
+                Personalised recommendations are generated from your financial data — income, expenses, savings, and loans.
+              </p>
+              <p className="text-sm text-muted-foreground mb-6">
+                <Link href="/data-entry" className="text-primary font-semibold hover:underline">Enter your financial data</Link>, then <Link href="/score" className="text-primary font-semibold hover:underline">calculate your score</Link> to unlock tailored advice.
+              </p>
+              <Link href="/data-entry">
+                <Button className="gap-2">
+                  <Plus className="w-4 h-4" /> Start Entering Data
+                </Button>
+              </Link>
+            </div>
+          </Card>
+        )}
+
         {data?.topRecommendation && (
           <Card className="p-8 bg-gradient-to-r from-primary to-[#2e7a56] text-white border-none shadow-xl shadow-primary/20">
             <div className="flex items-center gap-2 mb-4 text-white/80 text-sm font-bold uppercase tracking-wider">

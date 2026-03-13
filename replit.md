@@ -84,11 +84,11 @@ users, profiles, income_entries, expense_entries, obligations, savings_entries, 
 
 - `/login` — Login/Register with split-screen design
 - `/onboarding` — Profile type selection (Individual / Small Business)
-- `/dashboard` — Mode-aware: Verdict Layer, metric cards (Individual: Net Savings/Debt Ratio/Emergency Fund, Business: Net Profit/Debt-to-Revenue/Cash Reserve), Financial Insights Engine (automated insight cards with severity, explanation, action, literacy links), Best Next Options (Recommendation Matching Engine — up to 3 matched bank products or caution card), Income vs Expenses chart, Financial Progress section (4 summary cards with trend indicators, 4 mini charts: Score Trend/Savings or Profit Trend/Debt Trend/Reserve Growth, Financial Milestones timeline), top recommendation
+- `/dashboard` — Mode-aware: Verdict Layer, metric cards with InfoTooltips (Individual: Net Savings/Debt Ratio/Emergency Fund, Business: Net Profit/Debt-to-Revenue/Cash Reserve), section headers (Key Metrics, Insights, Recommended Products), Financial Insights Engine (automated insight cards with severity, explanation, action, literacy links), Best Next Options (Recommendation Matching Engine — up to 3 matched bank products or caution card), Income vs Expenses chart, Financial Progress section (4 summary cards with trend indicators, 4 mini charts: Score Trend/Savings or Profit Trend/Debt Trend/Reserve Growth, Financial Milestones timeline), top recommendation
 - `/data-entry` — Mode-aware tabbed CRUD (Individual: Income/Expenses/Personal Loans/Savings, Business: Revenue/Operating Expenses/Business Loans/Cash Balance)
-- `/score` — Mode-aware health score breakdown (Individual: Savings/Debt/Emergency/Expenses, Business: Profit Margin/Debt-to-Revenue/Cash Reserve/Revenue Stability)
-- `/loans` — Loan calculator with EMI, affordability analysis
-- `/advisory` — AI-generated financial recommendations + Best Next Options (matched bank products)
+- `/score` — Mode-aware health score breakdown with InfoTooltips per component (Individual: Savings/Debt/Emergency/Expenses, Business: Profit Margin/Debt-to-Revenue/Cash Reserve/Revenue Stability); improved empty state with CTA to data entry
+- `/loans` — Loan calculator with EMI, affordability analysis; improved empty state showing Affordable/Stretching/Unaffordable status previews
+- `/advisory` — AI-generated financial recommendations + Best Next Options (matched bank products); empty state when no recommendations available
 - `/reports` — Monthly financial reports with verdict strip (main risk + next action) and granular metric hints
 - `/intelligence/banks` — Bank product comparison tables (Savings, FD, Housing/Personal/Education Loans) with Data Transparency Layer (freshness badges, confidence labels, source links per row, transparency footer)
 - `/intelligence/literacy` — Financial literacy center (Interest, Debt Ratio, EMI, Emergency Funds, Long-Term Savings)

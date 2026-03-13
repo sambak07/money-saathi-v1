@@ -2,9 +2,10 @@ import { useGetFinancialScore } from "@workspace/api-client-react";
 import { useFinanceMutations } from "@/hooks/use-finance";
 import { useAuth } from "@/hooks/use-auth";
 import { Layout } from "@/components/layout";
-import { Card, Button, Badge, cn } from "@/components/ui-elements";
-import { RefreshCw, Info, Building2, User } from "lucide-react";
+import { Card, Button, Badge, cn, InfoTooltip } from "@/components/ui-elements";
+import { RefreshCw, Info, Building2, User, Plus, BarChart3 } from "lucide-react";
 import { format } from "date-fns";
+import { Link } from "wouter";
 
 export default function Score() {
   const { data: score, isLoading } = useGetFinancialScore();
@@ -43,26 +44,47 @@ export default function Score() {
   if (!score) {
     return (
       <Layout>
-        <div className="text-center p-12">
-          <h2 className="text-2xl font-bold mb-4">No Score Available</h2>
-          <Button onClick={handleRecalculate}>Calculate Initial Score</Button>
-        </div>
+        <Card className="p-10 border-dashed border-2 bg-transparent max-w-xl mx-auto mt-8">
+          <div className="flex flex-col items-center text-center">
+            <div className="p-4 bg-primary/10 rounded-2xl mb-4">
+              <BarChart3 className="w-8 h-8 text-primary" />
+            </div>
+            <h2 className="text-xl font-bold mb-2">No Score Calculated Yet</h2>
+            <p className="text-muted-foreground mb-2 leading-relaxed">
+              Your financial health score measures your overall financial resilience on a 0–100 scale across four key areas.
+            </p>
+            <p className="text-sm text-muted-foreground mb-6">
+              For the most accurate score, first <Link href="/data-entry" className="text-primary font-semibold hover:underline">enter your financial data</Link> (income, expenses, savings, and loans), then calculate your score.
+            </p>
+            <div className="flex gap-3">
+              <Link href="/data-entry">
+                <Button variant="outline" className="gap-2">
+                  <Plus className="w-4 h-4" /> Add Data First
+                </Button>
+              </Link>
+              <Button onClick={handleRecalculate} disabled={calculateScore.isPending} className="gap-2">
+                <RefreshCw className={cn("w-4 h-4", calculateScore.isPending && "animate-spin")} />
+                Calculate Score
+              </Button>
+            </div>
+          </div>
+        </Card>
       </Layout>
     );
   }
 
   const individualComponents = [
-    { title: "Savings Habit", score: score.savingsScore, ratio: score.savingsRatio, desc: "Portion of income saved monthly.", isMonths: false },
-    { title: "Debt Burden", score: score.debtScore, ratio: score.debtRatio, desc: "Income dedicated to debt repayment.", isMonths: false },
-    { title: "Emergency Fund", score: score.emergencyScore, ratio: score.emergencyFundCoverage, desc: "Months of expenses covered by savings.", isMonths: true },
-    { title: "Expense Management", score: score.expenseScore, ratio: score.expenseRatio, desc: "Portion of income spent on living costs.", isMonths: false },
+    { title: "Savings Habit", score: score.savingsScore, ratio: score.savingsRatio, desc: "Portion of income saved monthly.", tooltip: "Compares your total savings to annual income. Target: savings equal to 50% or more of annual income for full marks.", isMonths: false },
+    { title: "Debt Burden", score: score.debtScore, ratio: score.debtRatio, desc: "Income dedicated to debt repayment.", tooltip: "Monthly loan/EMI payments as a percentage of income. Below 20% earns full marks; above 50% is a red flag.", isMonths: false },
+    { title: "Emergency Fund", score: score.emergencyScore, ratio: score.emergencyFundCoverage, desc: "Months of expenses covered by savings.", tooltip: "How many months of expenses your emergency savings can cover. 6+ months earns full marks.", isMonths: true },
+    { title: "Expense Management", score: score.expenseScore, ratio: score.expenseRatio, desc: "Portion of income spent on living costs.", tooltip: "Monthly expenses as a percentage of income. Spending 50% or less earns full marks; above 90% is critical.", isMonths: false },
   ];
 
   const businessComponents = [
-    { title: "Profit Margin", score: (score as any).profitScore || score.savingsScore, ratio: (score as any).profitMargin || score.savingsRatio, desc: "Net profit as % of revenue.", isMonths: false },
-    { title: "Debt-to-Revenue", score: score.debtScore, ratio: score.debtRatio, desc: "Monthly loan payments vs revenue.", isMonths: false },
-    { title: "Cash Reserve", score: (score as any).cashReserveScore || score.emergencyScore, ratio: (score as any).cashReserveMonths || score.emergencyFundCoverage, desc: "Months of operating expenses covered.", isMonths: true },
-    { title: "Revenue Stability", score: (score as any).revenueStabilityScore || score.expenseScore, ratio: (score as any).revenueStabilityRatio || score.expenseRatio, desc: "Consistency and reliability of income.", isMonths: false },
+    { title: "Profit Margin", score: (score as any).profitScore || score.savingsScore, ratio: (score as any).profitMargin || score.savingsRatio, desc: "Net profit as % of revenue.", tooltip: "Net profit (revenue − expenses − debt) divided by revenue. 20%+ earns full marks.", isMonths: false },
+    { title: "Debt-to-Revenue", score: score.debtScore, ratio: score.debtRatio, desc: "Monthly loan payments vs revenue.", tooltip: "Monthly business loan payments as a percentage of revenue. Below 20% earns full marks.", isMonths: false },
+    { title: "Cash Reserve", score: (score as any).cashReserveScore || score.emergencyScore, ratio: (score as any).cashReserveMonths || score.emergencyFundCoverage, desc: "Months of operating expenses covered.", tooltip: "How many months of operating expenses your cash balance covers. 3+ months earns full marks.", isMonths: true },
+    { title: "Revenue Stability", score: (score as any).revenueStabilityScore || score.expenseScore, ratio: (score as any).revenueStabilityRatio || score.expenseRatio, desc: "Consistency and reliability of income.", tooltip: "Based on number of income sources and revenue concentration. 3+ diversified sources earns full marks.", isMonths: false },
   ];
 
   const components = isBusiness ? businessComponents : individualComponents;
@@ -109,7 +131,10 @@ export default function Score() {
             <Card key={i} className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="font-bold text-lg">{comp.title}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-lg">{comp.title}</h3>
+                    <InfoTooltip text={comp.tooltip} />
+                  </div>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                     <Info className="w-3 h-3" /> {comp.desc}
                   </div>

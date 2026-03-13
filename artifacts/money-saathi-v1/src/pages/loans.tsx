@@ -251,9 +251,34 @@ export default function Loans() {
             <ResultPanel result={result} />
           ) : (
             <Card className="p-12 flex flex-col items-center justify-center text-center text-muted-foreground h-full min-h-[400px] border-dashed border-2 bg-transparent">
-              <Calculator className="w-14 h-14 mb-4 opacity-15" />
-              <h3 className="text-lg font-semibold text-foreground mb-1">Enter Loan Details</h3>
-              <p className="max-w-sm">Fill in the form to see your EMI, affordability status, safe EMI range, and how this loan would affect your financial health score.</p>
+              <div className="p-4 bg-primary/10 rounded-2xl mb-4">
+                <Calculator className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Enter Loan Details</h3>
+              <p className="max-w-sm mb-5 leading-relaxed">Fill in the amount, interest rate, and tenure to see your monthly EMI, affordability verdict, safe EMI range, and how this loan would affect your health score.</p>
+              <div className="grid grid-cols-3 gap-3 max-w-sm w-full">
+                <div className="bg-muted/30 rounded-xl p-3 text-center">
+                  <div className="p-1.5 bg-emerald-500/10 rounded-lg mx-auto w-fit mb-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <p className="text-xs font-semibold text-foreground">Affordable</p>
+                  <p className="text-[10px] text-muted-foreground">EMI fits budget</p>
+                </div>
+                <div className="bg-muted/30 rounded-xl p-3 text-center">
+                  <div className="p-1.5 bg-amber-500/10 rounded-lg mx-auto w-fit mb-1.5">
+                    <AlertTriangle className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <p className="text-xs font-semibold text-foreground">Stretching</p>
+                  <p className="text-[10px] text-muted-foreground">Tight but doable</p>
+                </div>
+                <div className="bg-muted/30 rounded-xl p-3 text-center">
+                  <div className="p-1.5 bg-red-500/10 rounded-lg mx-auto w-fit mb-1.5">
+                    <AlertTriangle className="w-4 h-4 text-red-600" />
+                  </div>
+                  <p className="text-xs font-semibold text-foreground">Unaffordable</p>
+                  <p className="text-[10px] text-muted-foreground">Exceeds capacity</p>
+                </div>
+              </div>
             </Card>
           )}
         </div>
