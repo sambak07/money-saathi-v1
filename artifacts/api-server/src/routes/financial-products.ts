@@ -8,11 +8,19 @@ const router: IRouter = Router();
 
 router.get("/financial-products", async (_req, res): Promise<void> => {
   try {
-    const rows = await db.select().from(financialProductsTable);
-    res.json(rows);
+
+    const rows = await db.execute(
+      `SELECT * FROM financial_products`
+    );
+
+    res.json(rows.rows);
+
   } catch (error) {
     console.error("financial-products route error:", error);
-    res.status(500).json({ message: "Failed to load financial products", error: String(error) });
+    res.status(500).json({
+      message: "Failed to load financial products",
+      error: String(error)
+    });
   }
 });
 
