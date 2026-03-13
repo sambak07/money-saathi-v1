@@ -30,3 +30,8 @@ externalPort = 3000
 [[ports]]
 localPort = 8080
 externalPort = 80
+
+[userenv]
+
+[userenv.production]
+SUPABASE_DATABASE_URL = "postgresql://postgres:MyP@ss#2026@db.oszllmgzhegnbyazafhr.supabase.co:5432/postgres"
