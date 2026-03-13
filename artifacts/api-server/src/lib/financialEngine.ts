@@ -105,6 +105,161 @@ export function calculateScore(summary: FinancialSummary): ScoreBreakdown {
   };
 }
 
+export interface Verdict {
+  category: string;
+  mainRisk: string;
+  nextBestAction: string;
+  hasData: boolean;
+}
+
+export function generateVerdict(summary: FinancialSummary, score: ScoreBreakdown): Verdict {
+  const income = summary.totalMonthlyIncome;
+  const hasData = income > 0 || summary.totalMonthlyExpenses > 0 || summary.totalSavingsBalance > 0 || summary.totalMonthlyObligations > 0;
+
+  if (!hasData) {
+    return {
+      category: score.category,
+      mainRisk: "No financial data entered yet",
+      nextBestAction: "Add your monthly income to get started",
+      hasData: false,
+    };
+  }
+
+  if (income === 0) {
+    return {
+      category: score.category,
+      mainRisk: "No income recorded",
+      nextBestAction: "Add your monthly income so we can analyse your finances",
+      hasData: true,
+    };
+  }
+
+  const components = [
+    { key: "debt", score: score.debtScore, ratio: score.debtRatio },
+    { key: "savings", score: score.savingsScore, ratio: score.savingsRatio },
+    { key: "emergency", score: score.emergencyScore, ratio: score.emergencyFundCoverage },
+    { key: "expenses", score: score.expenseScore, ratio: score.expenseRatio },
+  ];
+  components.sort((a, b) => a.score - b.score);
+  const weakest = components[0];
+
+  let mainRisk: string;
+  let nextBestAction: string;
+
+  switch (weakest.key) {
+    case "debt": {
+      const debtPct = Math.round(score.debtRatio * 100);
+      const excessDebt = Math.round(summary.totalMonthlyObligations - income * 0.3);
+      mainRisk = `High debt burden (${debtPct}% of income)`;
+      if (excessDebt > 0) {
+        nextBestAction = `Reduce monthly debt payments by Nu. ${excessDebt.toLocaleString()} to reach the safe 30% threshold`;
+      } else {
+        nextBestAction = "Avoid new borrowing until debt ratio drops below 30%";
+      }
+      break;
+    }
+    case "savings": {
+      const savPct = Math.round(score.savingsRatio * 100);
+      const targetAnnual = income * 12 * 0.5;
+      const gap = Math.round(Math.max(0, targetAnnual - summary.totalSavingsBalance));
+      const monthlyGap = Math.round(gap / 12);
+      mainRisk = `Low savings ratio (${savPct}% of annual income)`;
+      if (monthlyGap > 0) {
+        nextBestAction = `Increase monthly savings by Nu. ${monthlyGap.toLocaleString()} to build a strong reserve`;
+      } else {
+        nextBestAction = "Maintain current savings rate to stay on target";
+      }
+      break;
+    }
+    case "emergency": {
+      const months = Math.round(score.emergencyFundCoverage * 10) / 10;
+      const targetMonths = Math.max(3, 6 - months);
+      const gap = Math.round(summary.totalMonthlyExpenses * targetMonths);
+      mainRisk = `Weak emergency fund (${months} months of expenses)`;
+      if (gap > 0 && months < 3) {
+        nextBestAction = `Build a 3-month emergency fund — save Nu. ${gap.toLocaleString()} in an emergency account`;
+      } else if (gap > 0) {
+        nextBestAction = `Grow emergency fund to 6 months — save Nu. ${Math.round(summary.totalMonthlyExpenses * (6 - months)).toLocaleString()} more`;
+      } else {
+        nextBestAction = "Continue contributing to your emergency fund";
+      }
+      break;
+    }
+    case "expenses":
+    default: {
+      const expPct = Math.round(score.expenseRatio * 100);
+      const safeExpenses = income * 0.7;
+      const excess = Math.round(Math.max(0, summary.totalMonthlyExpenses - safeExpenses));
+      mainRisk = `Expense ratio too high (${expPct}% of income)`;
+      if (excess > 0) {
+        nextBestAction = `Reduce monthly expenses by Nu. ${excess.toLocaleString()} to free up savings capacity`;
+      } else {
+        nextBestAction = "Review discretionary spending to keep expenses below 70% of income";
+      }
+      break;
+    }
+  }
+
+  if (score.totalScore >= 80) {
+    mainRisk = "No major risks detected";
+    nextBestAction = "Continue maintaining your current financial habits";
+  }
+
+  return {
+    category: score.category,
+    mainRisk,
+    nextBestAction,
+    hasData,
+  };
+}
+
+export function generateVerdictFromReport(report: {
+  totalIncome: number; totalExpenses: number; totalDebt: number;
+  totalSavings: number; netSavings: number; financialScore: number; scoreCategory: string;
+}): { mainRisk: string; nextBestAction: string } {
+  const income = report.totalIncome || 1;
+  const debtRatio = report.totalDebt / income;
+  const expenseRatio = report.totalExpenses / income;
+  const savingsRatio = report.totalSavings / (income * 12);
+  const score = report.financialScore;
+
+  if (score >= 80) {
+    return { mainRisk: "No major risks detected", nextBestAction: "Continue maintaining your current financial habits" };
+  }
+
+  const risks = [
+    { key: "debt", severity: debtRatio > 0.3 ? debtRatio : 0 },
+    { key: "expenses", severity: expenseRatio > 0.7 ? expenseRatio : 0 },
+    { key: "savings", severity: savingsRatio < 0.5 ? (0.5 - savingsRatio) : 0 },
+  ];
+  risks.sort((a, b) => b.severity - a.severity);
+  const top = risks[0];
+
+  switch (top.key) {
+    case "debt": {
+      const excess = Math.round(report.totalDebt - income * 0.3);
+      return {
+        mainRisk: `High debt burden (${Math.round(debtRatio * 100)}% of income)`,
+        nextBestAction: excess > 0 ? `Reduce monthly debt by Nu. ${excess.toLocaleString()}` : "Avoid new borrowing",
+      };
+    }
+    case "expenses": {
+      const excess = Math.round(report.totalExpenses - income * 0.7);
+      return {
+        mainRisk: `Expense ratio too high (${Math.round(expenseRatio * 100)}% of income)`,
+        nextBestAction: excess > 0 ? `Reduce expenses by Nu. ${excess.toLocaleString()}` : "Review discretionary spending",
+      };
+    }
+    default: {
+      const gap = Math.round((income * 12 * 0.5 - report.totalSavings) / 12);
+      return {
+        mainRisk: `Low savings ratio (${Math.round(savingsRatio * 100)}% of annual income)`,
+        nextBestAction: gap > 0 ? `Increase monthly savings by Nu. ${gap.toLocaleString()}` : "Maintain savings rate",
+      };
+    }
+  }
+}
+
 export interface AdvisoryItem {
   category: string;
   title: string;

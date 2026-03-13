@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
 import { db, financialScoresTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
-import { getFinancialSummary, calculateScore, generateAdvisory } from "../lib/financialEngine";
+import { getFinancialSummary, calculateScore, generateAdvisory, generateVerdict } from "../lib/financialEngine";
 
 const router: IRouter = Router();
 
@@ -10,6 +10,7 @@ router.get("/dashboard", requireAuth, async (req, res): Promise<void> => {
   const summary = await getFinancialSummary(req.userId!);
   const scoreData = calculateScore(summary);
   const advisory = generateAdvisory(summary, scoreData);
+  const verdict = generateVerdict(summary, scoreData);
 
   const [existingScore] = await db
     .select()
@@ -38,6 +39,7 @@ router.get("/dashboard", requireAuth, async (req, res): Promise<void> => {
 
   res.json({
     financialScore,
+    verdict,
     totalIncome: Math.round(summary.totalMonthlyIncome * 100) / 100,
     totalExpenses: Math.round(summary.totalMonthlyExpenses * 100) / 100,
     netSavings: Math.round((summary.totalMonthlyIncome - summary.totalMonthlyExpenses - summary.totalMonthlyObligations) * 100) / 100,

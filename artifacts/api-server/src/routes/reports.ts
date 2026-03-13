@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq, and, desc } from "drizzle-orm";
 import { db, reportsTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
-import { getFinancialSummary, calculateScore, generateAdvisory } from "../lib/financialEngine";
+import { getFinancialSummary, calculateScore, generateAdvisory, generateVerdictFromReport } from "../lib/financialEngine";
 
 const router: IRouter = Router();
 
@@ -12,7 +12,13 @@ router.get("/reports", requireAuth, async (req, res): Promise<void> => {
     .from(reportsTable)
     .where(eq(reportsTable.userId, req.userId!))
     .orderBy(desc(reportsTable.year), desc(reportsTable.month));
-  res.json(reports);
+
+  const enriched = reports.map(r => ({
+    ...r,
+    verdict: generateVerdictFromReport(r),
+  }));
+
+  res.json(enriched);
 });
 
 router.post("/reports/generate", requireAuth, async (req, res): Promise<void> => {
@@ -30,7 +36,7 @@ router.post("/reports/generate", requireAuth, async (req, res): Promise<void> =>
     ));
 
   if (existing) {
-    res.json(existing);
+    res.json({ ...existing, verdict: generateVerdictFromReport(existing) });
     return;
   }
 
@@ -52,7 +58,7 @@ router.post("/reports/generate", requireAuth, async (req, res): Promise<void> =>
     recommendations: advisory.map(a => `${a.title}: ${a.description}`),
   }).returning();
 
-  res.json(report);
+  res.json({ ...report, verdict: generateVerdictFromReport(report) });
 });
 
 export default router;
