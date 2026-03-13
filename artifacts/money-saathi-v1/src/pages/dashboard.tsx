@@ -1,9 +1,11 @@
-import { useGetDashboard } from "@workspace/api-client-react";
+import { useState } from "react";
+import { useGetDashboard, useGetTimeline } from "@workspace/api-client-react";
+import type { FinancialSnapshotData } from "@workspace/api-client-react";
 import { Link } from "wouter";
 import { Layout } from "@/components/layout";
 import { Card, Button, Badge } from "@/components/ui-elements";
-import { ArrowRight, TrendingUp, TrendingDown, Landmark, Shield, Lightbulb, AlertTriangle, CheckCircle2, CircleAlert, Plus, Wallet, Receipt, PiggyBank, Banknote, BarChart3, Building2, User } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend } from "recharts";
+import { ArrowRight, TrendingUp, TrendingDown, Landmark, Shield, Lightbulb, AlertTriangle, CheckCircle2, CircleAlert, Plus, Wallet, Receipt, PiggyBank, Banknote, BarChart3, Building2, User, Activity } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend, LineChart, Line, Area, AreaChart } from "recharts";
 
 function formatNu(val: number) {
   return `Nu. ${val.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
@@ -313,6 +315,133 @@ function BusinessMetrics({ data, dp }: { data: any; dp: any }) {
   );
 }
 
+type TimelineMetric = "score" | "income" | "expenses" | "netSavings" | "debtRatio";
+
+const TIMELINE_TABS: { key: TimelineMetric; label: string; color: string; unit?: string }[] = [
+  { key: "score", label: "Health Score", color: "#16a34a" },
+  { key: "income", label: "Income", color: "#2563eb" },
+  { key: "expenses", label: "Expenses", color: "#dc2626" },
+  { key: "netSavings", label: "Net Savings", color: "#7c3aed" },
+  { key: "debtRatio", label: "Debt Ratio", color: "#ea580c", unit: "%" },
+];
+
+function formatMonthLabel(month: string): string {
+  const [y, m] = month.split("-");
+  const date = new Date(Number(y), Number(m) - 1);
+  return date.toLocaleString("default", { month: "short", year: "2-digit" });
+}
+
+function FinancialTimeline({ isBusiness }: { isBusiness: boolean }) {
+  const { data: snapshots, isLoading } = useGetTimeline();
+  const [activeMetric, setActiveMetric] = useState<TimelineMetric>("score");
+
+  if (isLoading) return null;
+  if (!snapshots || snapshots.length === 0) {
+    return (
+      <Card className="p-6 border-dashed border-2 bg-transparent flex items-start gap-4">
+        <div className="p-2.5 bg-primary/10 rounded-xl shrink-0">
+          <Activity className="w-5 h-5 text-primary" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-sm mb-0.5">Financial Timeline</h3>
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            Your timeline will appear here once you start adding financial data. Each month's snapshot tracks your progress over time.
+          </p>
+        </div>
+      </Card>
+    );
+  }
+
+  const chartData = snapshots.map((s: FinancialSnapshotData) => ({
+    month: formatMonthLabel(s.month),
+    score: Math.round(s.financialScore),
+    income: Math.round(s.totalIncome),
+    expenses: Math.round(s.totalExpenses),
+    netSavings: Math.round(s.totalIncome - s.totalExpenses),
+    debtRatio: Math.round(s.debtRatio * 10000) / 100,
+  }));
+
+  const tab = TIMELINE_TABS.find(t => t.key === activeMetric)!;
+  const isMonetary = activeMetric === "income" || activeMetric === "expenses" || activeMetric === "netSavings";
+
+  const tabs = TIMELINE_TABS.map(t => ({
+    ...t,
+    label: isBusiness
+      ? t.key === "income" ? "Revenue" : t.key === "expenses" ? "OpEx" : t.key === "netSavings" ? "Net Profit" : t.label
+      : t.label,
+  }));
+
+  return (
+    <Card className="p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div>
+          <h2 className="text-lg font-bold">Financial Timeline</h2>
+          <p className="text-sm text-muted-foreground">Track how your financial health evolves over time</p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-1.5 mb-4">
+        {tabs.map(t => (
+          <button
+            key={t.key}
+            onClick={() => setActiveMetric(t.key)}
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              activeMetric === t.key
+                ? "text-white shadow-sm"
+                : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
+            }`}
+            style={activeMetric === t.key ? { backgroundColor: t.color } : undefined}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="h-[240px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+            <defs>
+              <linearGradient id={`gradient-${tab.key}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={tab.color} stopOpacity={0.2} />
+                <stop offset="95%" stopColor={tab.color} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+            <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} dy={10} />
+            <YAxis
+              axisLine={false} tickLine={false}
+              tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+              tickFormatter={(v) =>
+                activeMetric === "debtRatio" ? `${v}%`
+                : isMonetary ? (v === 0 ? "0" : `${(v/1000).toFixed(0)}k`)
+                : String(v)
+              }
+            />
+            <Tooltip
+              contentStyle={{ borderRadius: '12px', border: '1px solid hsl(var(--border))', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', fontSize: '13px' }}
+              formatter={(value: number) => [
+                activeMetric === "debtRatio" ? `${value}%`
+                : isMonetary ? formatNu(value)
+                : `${value} / 100`,
+                tabs.find(t => t.key === activeMetric)?.label,
+              ]}
+            />
+            <Area
+              type="monotone"
+              dataKey={activeMetric}
+              stroke={tab.color}
+              strokeWidth={2.5}
+              fill={`url(#gradient-${tab.key})`}
+              dot={{ r: 4, fill: tab.color, strokeWidth: 2, stroke: "white" }}
+              activeDot={{ r: 6, fill: tab.color, strokeWidth: 2, stroke: "white" }}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    </Card>
+  );
+}
+
 export default function Dashboard() {
   const { data, isLoading } = useGetDashboard();
 
@@ -428,6 +557,8 @@ export default function Dashboard() {
                 </div>
               </Card>
             )}
+
+            <FinancialTimeline isBusiness={isBusiness} />
 
             {data.topRecommendation && (
               <Card className="p-0 overflow-hidden border-none bg-gradient-to-r from-primary to-primary/85">

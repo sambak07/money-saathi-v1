@@ -11,6 +11,7 @@ import loansRouter from "./loans";
 import advisoryRouter from "./advisory";
 import reportsRouter from "./reports";
 import dashboardRouter from "./dashboard";
+import timelineRouter from "./timeline";
 
 const router: IRouter = Router();
 
@@ -26,5 +27,6 @@ router.use(loansRouter);
 router.use(advisoryRouter);
 router.use(reportsRouter);
 router.use(dashboardRouter);
+router.use(timelineRouter);
 
 export default router;

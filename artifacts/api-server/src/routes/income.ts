@@ -3,6 +3,7 @@ import { eq, and } from "drizzle-orm";
 import { db, incomeEntriesTable } from "@workspace/db";
 import { CreateIncomeEntryBody, UpdateIncomeEntryParams } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/auth";
+import { updateMonthlySnapshot } from "../lib/snapshotService";
 
 const router: IRouter = Router();
 
@@ -19,6 +20,7 @@ router.post("/income", requireAuth, async (req, res): Promise<void> => {
   }
 
   const [entry] = await db.insert(incomeEntriesTable).values({ ...parsed.data, userId: req.userId! }).returning();
+  updateMonthlySnapshot(req.userId!).catch(() => {});
   res.status(201).json(entry);
 });
 
@@ -32,6 +34,7 @@ router.put("/income/:id", requireAuth, async (req, res): Promise<void> => {
 
   const [entry] = await db.update(incomeEntriesTable).set(parsed.data).where(and(eq(incomeEntriesTable.id, id), eq(incomeEntriesTable.userId, req.userId!))).returning();
   if (!entry) { res.status(404).json({ message: "Not found" }); return; }
+  updateMonthlySnapshot(req.userId!).catch(() => {});
   res.json(entry);
 });
 
@@ -42,6 +45,7 @@ router.delete("/income/:id", requireAuth, async (req, res): Promise<void> => {
 
   const [entry] = await db.delete(incomeEntriesTable).where(and(eq(incomeEntriesTable.id, id), eq(incomeEntriesTable.userId, req.userId!))).returning();
   if (!entry) { res.status(404).json({ message: "Not found" }); return; }
+  updateMonthlySnapshot(req.userId!).catch(() => {});
   res.json({ message: "Deleted" });
 });
 

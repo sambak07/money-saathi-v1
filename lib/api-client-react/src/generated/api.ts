@@ -28,6 +28,7 @@ import type {
   ErrorResponse,
   ExpenseEntry,
   FinancialScore,
+  FinancialSnapshotData,
   HealthStatus,
   IncomeEntry,
   LoanCalculationRequest,
@@ -2545,6 +2546,72 @@ export function useGetDashboard<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetDashboardQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+export const getGetTimelineUrl = () => {
+  return `/api/timeline`;
+};
+
+export const getTimeline = async (
+  options?: RequestInit,
+): Promise<FinancialSnapshotData[]> => {
+  return customFetch<FinancialSnapshotData[]>(getGetTimelineUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetTimelineQueryKey = () => {
+  return ["getTimeline"] as const;
+};
+
+export const getGetTimelineQueryOptions = <
+  TData = Awaited<ReturnType<typeof getTimeline>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getTimeline>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+  const queryKey = queryOptions?.queryKey ?? getGetTimelineQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getTimeline>>> = ({
+    signal,
+  }) => getTimeline({ signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getTimeline>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export function useGetTimeline<
+  TData = Awaited<ReturnType<typeof getTimeline>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getTimeline>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetTimelineQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

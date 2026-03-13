@@ -7,3 +7,4 @@ export * from "./savings";
 export * from "./financialScores";
 export * from "./loanCalculations";
 export * from "./reports";
+export * from "./financialSnapshots";

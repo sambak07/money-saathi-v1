@@ -3,6 +3,7 @@ import { eq, and } from "drizzle-orm";
 import { db, obligationsTable } from "@workspace/db";
 import { CreateObligationBody } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/auth";
+import { updateMonthlySnapshot } from "../lib/snapshotService";
 
 const router: IRouter = Router();
 
@@ -15,6 +16,7 @@ router.post("/obligations", requireAuth, async (req, res): Promise<void> => {
   const parsed = CreateObligationBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ message: parsed.error.message }); return; }
   const [entry] = await db.insert(obligationsTable).values({ ...parsed.data, userId: req.userId! }).returning();
+  updateMonthlySnapshot(req.userId!).catch(() => {});
   res.status(201).json(entry);
 });
 
@@ -28,6 +30,7 @@ router.put("/obligations/:id", requireAuth, async (req, res): Promise<void> => {
 
   const [entry] = await db.update(obligationsTable).set(parsed.data).where(and(eq(obligationsTable.id, id), eq(obligationsTable.userId, req.userId!))).returning();
   if (!entry) { res.status(404).json({ message: "Not found" }); return; }
+  updateMonthlySnapshot(req.userId!).catch(() => {});
   res.json(entry);
 });
 
@@ -38,6 +41,7 @@ router.delete("/obligations/:id", requireAuth, async (req, res): Promise<void> =
 
   const [entry] = await db.delete(obligationsTable).where(and(eq(obligationsTable.id, id), eq(obligationsTable.userId, req.userId!))).returning();
   if (!entry) { res.status(404).json({ message: "Not found" }); return; }
+  updateMonthlySnapshot(req.userId!).catch(() => {});
   res.json({ message: "Deleted" });
 });
 

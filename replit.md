@@ -84,7 +84,7 @@ users, profiles, income_entries, expense_entries, obligations, savings_entries, 
 
 - `/login` — Login/Register with split-screen design
 - `/onboarding` — Profile type selection (Individual / Small Business)
-- `/dashboard` — Mode-aware: Verdict Layer, metric cards (Individual: Net Savings/Debt Ratio/Emergency Fund, Business: Net Profit/Debt-to-Revenue/Cash Reserve), chart, top recommendation
+- `/dashboard` — Mode-aware: Verdict Layer, metric cards (Individual: Net Savings/Debt Ratio/Emergency Fund, Business: Net Profit/Debt-to-Revenue/Cash Reserve), Income vs Expenses chart, Financial Timeline (5 metrics: Health Score/Income/Expenses/Net Savings/Debt Ratio), top recommendation
 - `/data-entry` — Mode-aware tabbed CRUD (Individual: Income/Expenses/Personal Loans/Savings, Business: Revenue/Operating Expenses/Business Loans/Cash Balance)
 - `/score` — Mode-aware health score breakdown (Individual: Savings/Debt/Emergency/Expenses, Business: Profit Margin/Debt-to-Revenue/Cash Reserve/Revenue Stability)
 - `/loans` — Loan calculator with EMI, affordability analysis
@@ -113,7 +113,7 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 
 ### `artifacts/api-server` (`@workspace/api-server`)
 
-Express 5 API server with cookie-parser. Routes at `/api`: auth, profiles, income, expenses, obligations, savings, scores, loans, advisory, reports, dashboard.
+Express 5 API server with cookie-parser. Routes at `/api`: auth, profiles, income, expenses, obligations, savings, scores, loans, advisory, reports, dashboard, timeline. Snapshot service auto-updates current month's financial summary on every CRUD operation (atomic upsert).
 
 ### `artifacts/money-saathi-v1` (`@workspace/money-saathi-v1`)
 
@@ -121,7 +121,7 @@ React + Vite frontend. Uses TailwindCSS v4, Recharts for charts, Framer Motion f
 
 ### `lib/db` (`@workspace/db`)
 
-Drizzle ORM with PostgreSQL. 9 tables for the financial platform.
+Drizzle ORM with PostgreSQL. 10 tables for the financial platform (includes `financial_snapshots` for monthly timeline data).
 
 ### `lib/api-spec` (`@workspace/api-spec`)
 

@@ -389,6 +389,19 @@ export interface DashboardDataPresence {
   hasSavings: boolean;
 }
 
+export interface FinancialSnapshotData {
+  id: number;
+  userId: number;
+  month: string;
+  totalIncome: number;
+  totalExpenses: number;
+  totalSavings: number;
+  totalObligations: number;
+  debtRatio: number;
+  financialScore: number;
+  createdAt: string;
+}
+
 export interface DashboardData {
   profileType: "individual" | "small_business";
   financialScore?: FinancialScore;
