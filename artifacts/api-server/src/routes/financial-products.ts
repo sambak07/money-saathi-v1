@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 
 const router: IRouter = Router();
 
-router.get("/financial-products", requireAuth, async (_req, res): Promise<void> => {
+router.get("/financial-products", async (_req, res): Promise<void> => {
   const products = await db
     .select()
     .from(financialProductsTable)
