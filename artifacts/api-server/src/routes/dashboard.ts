@@ -29,13 +29,15 @@ router.get("/dashboard", requireAuth, async (req, res): Promise<void> => {
     });
   }
 
+  const financialScore = {
+    id: existingScore?.id || 0,
+    userId: req.userId!,
+    ...scoreData,
+    calculatedAt: existingScore?.calculatedAt || new Date(),
+  };
+
   res.json({
-    financialScore: existingScore || {
-      id: 0,
-      userId: req.userId!,
-      ...scoreData,
-      calculatedAt: new Date(),
-    },
+    financialScore,
     totalIncome: Math.round(summary.totalMonthlyIncome * 100) / 100,
     totalExpenses: Math.round(summary.totalMonthlyExpenses * 100) / 100,
     netSavings: Math.round((summary.totalMonthlyIncome - summary.totalMonthlyExpenses - summary.totalMonthlyObligations) * 100) / 100,
