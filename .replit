@@ -27,3 +27,15 @@ channel = "stable-25_05"
 
 [userenv.shared]
 SUPABASE_DATABASE_URL = "postgresql://postgres:oGwj5hjnwMSzXyHg@db.oszllmgzhegnbyazafhr.supabase.co:5432/postgres"
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
+
+[[ports]]
+localPort = 8081
+externalPort = 8081
+
+[[ports]]
+localPort = 25486
+externalPort = 80
