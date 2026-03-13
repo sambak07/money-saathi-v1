@@ -15,6 +15,7 @@ import timelineRouter from "./timeline";
 import askAiRouter from "./ask-ai";
 import financialProductsRouter from "./financial-products";
 import vaultRouter from "./vault";
+import feedbackRouter from "./feedback";
 
 const router: IRouter = Router();
 
@@ -34,5 +35,6 @@ router.use(timelineRouter);
 router.use(askAiRouter);
 router.use(financialProductsRouter);
 router.use(vaultRouter);
+router.use(feedbackRouter);
 
 export default router;

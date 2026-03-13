@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "./ui-elements";
+import { FeedbackWidget } from "./feedback-widget";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -180,6 +181,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full relative z-10">
           {children}
         </main>
+        <FeedbackWidget />
       </div>
     </div>
   );

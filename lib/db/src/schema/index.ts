@@ -10,3 +10,4 @@ export * from "./reports";
 export * from "./financialSnapshots";
 export * from "./financialProducts";
 export * from "./vault";
+export * from "./feedback";

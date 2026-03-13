@@ -51,7 +51,7 @@ artifacts-monorepo/
 
 ## Database Tables
 
-users, profiles, income_entries, expense_entries, obligations, savings_entries, financial_scores, loan_calculations, reports
+users, profiles, income_entries, expense_entries, obligations, savings_entries, financial_scores, loan_calculations, reports, feedback
 
 ## Dual Financial Mode (Individual vs Small Business)
 
@@ -97,6 +97,7 @@ users, profiles, income_entries, expense_entries, obligations, savings_entries, 
 - `/intelligence/ask-ai` — AI financial assistant chat (SSE streaming, OpenAI gpt-5.2, Bhutan financial context)
 - `/vault` — Financial Vault: secure storage for bank accounts, fixed deposits, loans, insurance policies, and investments with reminders
 - `/admin/products` — Admin-only CRUD interface for financial products database with data freshness/confidence badges (visible only to admin users)
+- **Feedback Widget** — Floating button (bottom-right) on all authenticated pages; opens form with "What confused you?", "What did you like?", "What should improve?", optional email; `POST /api/feedback`; admin-only `GET /api/feedback` to review entries
 
 ## Key Patterns
 
