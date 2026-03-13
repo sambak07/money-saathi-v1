@@ -12,6 +12,7 @@ import advisoryRouter from "./advisory";
 import reportsRouter from "./reports";
 import dashboardRouter from "./dashboard";
 import timelineRouter from "./timeline";
+import askAiRouter from "./ask-ai";
 
 const router: IRouter = Router();
 
@@ -28,5 +29,6 @@ router.use(advisoryRouter);
 router.use(reportsRouter);
 router.use(dashboardRouter);
 router.use(timelineRouter);
+router.use(askAiRouter);
 
 export default router;

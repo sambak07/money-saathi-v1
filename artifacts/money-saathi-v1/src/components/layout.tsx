@@ -9,7 +9,12 @@ import {
   FileText,
   LogOut,
   Menu,
-  X
+  X,
+  Building2,
+  BookOpen,
+  TrendingUp,
+  Bot,
+  Globe
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "./ui-elements";
@@ -21,6 +26,13 @@ const NAV_ITEMS = [
   { href: "/loans", label: "Loan Calculator", icon: Calculator },
   { href: "/advisory", label: "Advisory", icon: Lightbulb },
   { href: "/reports", label: "Reports", icon: FileText },
+];
+
+const INTELLIGENCE_ITEMS = [
+  { href: "/intelligence/banks", label: "Bank Comparison", icon: Building2 },
+  { href: "/intelligence/literacy", label: "Financial Literacy", icon: BookOpen },
+  { href: "/intelligence/invest", label: "Investment Guide", icon: TrendingUp },
+  { href: "/intelligence/ask-ai", label: "Ask Money Saathi AI", icon: Bot },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -49,6 +61,32 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </Link>
         );
       })}
+
+      <div className="mt-5 mb-2">
+        <div className="flex items-center gap-2 px-4 mb-2">
+          <Globe className="h-3.5 w-3.5 text-muted-foreground" />
+          <span className="text-xs font-bold tracking-wider text-muted-foreground uppercase">Bhutan Financial Intelligence</span>
+        </div>
+        {INTELLIGENCE_ITEMS.map((item) => {
+          const isActive = location === item.href;
+          return (
+            <Link key={item.href} href={item.href} className="w-full">
+              <div
+                onClick={() => setMobileMenuOpen(false)}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-2.5 rounded-xl mb-1 transition-all duration-200 cursor-pointer",
+                  isActive 
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" 
+                    : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                )}
+              >
+                <item.icon className="h-4 w-4" />
+                <span className="font-medium text-sm">{item.label}</span>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
     </>
   );
 

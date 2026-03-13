@@ -12,6 +12,10 @@ import Score from "@/pages/score";
 import Loans from "@/pages/loans";
 import Advisory from "@/pages/advisory";
 import Reports from "@/pages/reports";
+import BankComparison from "@/pages/bhutan-intelligence/bank-comparison";
+import FinancialLiteracy from "@/pages/bhutan-intelligence/financial-literacy";
+import InvestmentGuide from "@/pages/bhutan-intelligence/investment-guide";
+import AskAI from "@/pages/bhutan-intelligence/ask-ai";
 
 function LoadingSpinner() {
   return (
@@ -68,6 +72,18 @@ function AppRoutes() {
       </Route>
       <Route path="/reports">
         <ProtectedRoute component={Reports} />
+      </Route>
+      <Route path="/intelligence/banks">
+        <ProtectedRoute component={BankComparison} />
+      </Route>
+      <Route path="/intelligence/literacy">
+        <ProtectedRoute component={FinancialLiteracy} />
+      </Route>
+      <Route path="/intelligence/invest">
+        <ProtectedRoute component={InvestmentGuide} />
+      </Route>
+      <Route path="/intelligence/ask-ai">
+        <ProtectedRoute component={AskAI} />
       </Route>
       
       <Route>
