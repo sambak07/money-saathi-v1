@@ -90,11 +90,11 @@ users, profiles, income_entries, expense_entries, obligations, savings_entries, 
 - `/loans` — Loan calculator with EMI, affordability analysis
 - `/advisory` — AI-generated financial recommendations + Best Next Options (matched bank products)
 - `/reports` — Monthly financial reports with verdict strip (main risk + next action) and granular metric hints
-- `/intelligence/banks` — Bank product comparison tables (Savings, FD, Housing/Personal/Education Loans)
+- `/intelligence/banks` — Bank product comparison tables (Savings, FD, Housing/Personal/Education Loans) with Data Transparency Layer (freshness badges, confidence labels, source links per row, transparency footer)
 - `/intelligence/literacy` — Financial literacy center (Interest, Debt Ratio, EMI, Emergency Funds, Long-Term Savings)
 - `/intelligence/invest` — Investment guide (Stock Market, Dividends, FD vs Equity, Wealth Planning)
 - `/intelligence/ask-ai` — AI financial assistant chat (SSE streaming, OpenAI gpt-5.2, Bhutan financial context)
-- `/admin/products` — Admin-only CRUD interface for financial products database (visible only to admin users)
+- `/admin/products` — Admin-only CRUD interface for financial products database with data freshness/confidence badges (visible only to admin users)
 
 ## Key Patterns
 

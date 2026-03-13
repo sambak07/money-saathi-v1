@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout";
 import { Card } from "@/components/ui-elements";
-import { Building2, Clock, Loader2 } from "lucide-react";
+import { Building2, Loader2 } from "lucide-react";
+import { FreshnessDot, ConfidenceBadge, SourceLink, DataTransparencyFooter } from "@/components/data-transparency";
 
 type TabKey = "savings" | "fd" | "housing" | "personal" | "education";
 
@@ -53,10 +54,26 @@ function Td({ children, highlight }: { children: React.ReactNode; highlight?: bo
   return <td className={`px-4 py-3 border-b border-border/30 ${highlight ? "font-bold text-primary" : ""}`}>{children}</td>;
 }
 
+function TransparencyCell({ product }: { product: Product }) {
+  return (
+    <Td>
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-1.5">
+          <FreshnessDot lastUpdated={product.lastUpdated} />
+          <ConfidenceBadge lastUpdated={product.lastUpdated} hasSource={!!product.sourceUrl} />
+        </div>
+        {product.sourceUrl && (
+          <SourceLink url={product.sourceUrl} label="Official Source" />
+        )}
+      </div>
+    </Td>
+  );
+}
+
 function SavingsTable({ products }: { products: Product[] }) {
   return (
     <TableWrapper>
-      <thead><tr><Th>Bank</Th><Th>Min Balance</Th><Th>Interest Rate</Th><Th>Features</Th></tr></thead>
+      <thead><tr><Th>Bank</Th><Th>Min Balance</Th><Th>Interest Rate</Th><Th>Features</Th><Th>Data Source</Th></tr></thead>
       <tbody>
         {products.map(p => (
           <tr key={p.id} className="hover:bg-muted/10 transition-colors">
@@ -64,6 +81,7 @@ function SavingsTable({ products }: { products: Product[] }) {
             <Td>{p.minimumBalance || "—"}</Td>
             <Td highlight>{p.interestRate || "—"}</Td>
             <Td><span className="text-muted-foreground">{p.keyFeatures || "—"}</span></Td>
+            <TransparencyCell product={p} />
           </tr>
         ))}
       </tbody>
@@ -74,7 +92,7 @@ function SavingsTable({ products }: { products: Product[] }) {
 function FDTable({ products }: { products: Product[] }) {
   return (
     <TableWrapper>
-      <thead><tr><Th>Bank</Th><Th>Interest Rates</Th><Th>Min Deposit</Th><Th>Features</Th></tr></thead>
+      <thead><tr><Th>Bank</Th><Th>Interest Rates</Th><Th>Min Deposit</Th><Th>Features</Th><Th>Data Source</Th></tr></thead>
       <tbody>
         {products.map(p => (
           <tr key={p.id} className="hover:bg-muted/10 transition-colors">
@@ -82,6 +100,7 @@ function FDTable({ products }: { products: Product[] }) {
             <Td highlight>{p.interestRate || "—"}</Td>
             <Td>{p.minimumBalance || "—"}</Td>
             <Td><span className="text-muted-foreground">{p.keyFeatures || "—"}</span></Td>
+            <TransparencyCell product={p} />
           </tr>
         ))}
       </tbody>
@@ -99,6 +118,7 @@ function LoanTable({ products, showFees }: { products: Product[]; showFees?: boo
           <Th>Tenure</Th>
           {showFees && <Th>Processing Fee</Th>}
           <Th>Details</Th>
+          <Th>Data Source</Th>
         </tr>
       </thead>
       <tbody>
@@ -109,6 +129,7 @@ function LoanTable({ products, showFees }: { products: Product[]; showFees?: boo
             <Td>{p.tenure || "—"}</Td>
             {showFees && <Td><span className="text-muted-foreground">{p.fees || "—"}</span></Td>}
             <Td><span className="text-muted-foreground">{p.keyFeatures || "—"}</span></Td>
+            <TransparencyCell product={p} />
           </tr>
         ))}
       </tbody>
@@ -130,13 +151,6 @@ export default function BankComparison() {
   }, []);
 
   const filtered = products.filter(p => p.productCategory === activeTab);
-
-  const lastUpdated = filtered.length > 0
-    ? filtered.reduce((latest, p) => {
-        const d = new Date(p.lastUpdated);
-        return d > latest ? d : latest;
-      }, new Date(0))
-    : null;
 
   const renderTable = () => {
     if (loading) {
@@ -189,17 +203,7 @@ export default function BankComparison() {
         <Card className="p-6">
           <p className="text-sm text-muted-foreground mb-4">{DESCRIPTIONS[activeTab]}</p>
           {renderTable()}
-          <div className="flex items-center justify-between mt-4">
-            <p className="text-xs text-muted-foreground italic">
-              Rates are indicative and subject to change. Please confirm with the respective bank for current rates and terms.
-            </p>
-            {lastUpdated && (
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Clock className="w-3.5 h-3.5" />
-                <span>Last updated: {lastUpdated.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</span>
-              </div>
-            )}
-          </div>
+          {filtered.length > 0 && <DataTransparencyFooter products={filtered} />}
         </Card>
       </div>
     </Layout>

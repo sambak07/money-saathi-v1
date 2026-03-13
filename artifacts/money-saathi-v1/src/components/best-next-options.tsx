@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { Card } from "@/components/ui-elements";
 import {
-  Building2, ExternalLink, Clock, AlertTriangle, ArrowRight,
+  Building2, ExternalLink, AlertTriangle, ArrowRight,
   Compass, ShieldCheck, CheckCircle2, Shield, TrendingUp,
   ArrowUpRight, Scale, ChevronDown, ChevronUp, Sparkles,
   Target, Gauge, PiggyBank, Zap,
 } from "lucide-react";
+import { FreshnessBadge, ConfidenceBadge, SourceLink } from "@/components/data-transparency";
 
 interface AlternativeProduct {
   id: number;
@@ -171,7 +172,7 @@ function RecommendationCard({ rec }: { rec: ProductRecommendation }) {
         )}
       </div>
 
-      <div className="px-5 py-3 bg-muted/10 border-t border-border/40">
+      <div className="px-5 py-2.5 bg-muted/10 border-t border-border/40 space-y-2">
         <div className="flex items-center gap-2 flex-wrap">
           {isImproveFirst ? (
             <Link href="/intelligence/literacy">
@@ -190,7 +191,7 @@ function RecommendationCard({ rec }: { rec: ProductRecommendation }) {
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary/90 transition-colors"
                 >
                   <ExternalLink className="w-3 h-3" />
-                  View Product
+                  View Official Source
                 </a>
               )}
               {rec.alternatives.length > 0 && (
@@ -204,11 +205,17 @@ function RecommendationCard({ rec }: { rec: ProductRecommendation }) {
               )}
             </>
           )}
+        </div>
 
-          <div className="flex items-center gap-1.5 ml-auto text-[10px] text-muted-foreground">
-            <Clock className="w-2.5 h-2.5" />
-            <span>{lastUpdated}</span>
-          </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[10px] text-muted-foreground">
+            Source: {rec.institutionName}
+          </span>
+          <span className="text-[10px] text-muted-foreground">
+            Updated: {lastUpdated}
+          </span>
+          <FreshnessBadge lastUpdated={rec.lastUpdated} />
+          <ConfidenceBadge lastUpdated={rec.lastUpdated} hasSource={!!rec.sourceUrl} />
         </div>
       </div>
     </Card>

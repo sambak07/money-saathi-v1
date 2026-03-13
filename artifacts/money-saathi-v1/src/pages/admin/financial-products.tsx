@@ -3,6 +3,7 @@ import { Layout } from "@/components/layout";
 import { Card } from "@/components/ui-elements";
 import { Plus, Pencil, Trash2, Save, X, Database, Building2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { FreshnessBadge, ConfidenceBadge } from "@/components/data-transparency";
 
 interface FinancialProduct {
   id: number;
@@ -312,7 +313,7 @@ export default function AdminFinancialProducts() {
                   <th className="text-left px-4 py-3 bg-muted/30 text-xs font-bold uppercase tracking-wider text-muted-foreground border-b border-border/50">Category</th>
                   <th className="text-left px-4 py-3 bg-muted/30 text-xs font-bold uppercase tracking-wider text-muted-foreground border-b border-border/50">Product</th>
                   <th className="text-left px-4 py-3 bg-muted/30 text-xs font-bold uppercase tracking-wider text-muted-foreground border-b border-border/50">Interest Rate</th>
-                  <th className="text-left px-4 py-3 bg-muted/30 text-xs font-bold uppercase tracking-wider text-muted-foreground border-b border-border/50">Last Updated</th>
+                  <th className="text-left px-4 py-3 bg-muted/30 text-xs font-bold uppercase tracking-wider text-muted-foreground border-b border-border/50">Data Status</th>
                   <th className="text-right px-4 py-3 bg-muted/30 text-xs font-bold uppercase tracking-wider text-muted-foreground border-b border-border/50">Actions</th>
                 </tr>
               </thead>
@@ -327,8 +328,16 @@ export default function AdminFinancialProducts() {
                     </td>
                     <td className="px-4 py-3 border-b border-border/30">{p.productName}</td>
                     <td className="px-4 py-3 border-b border-border/30 font-bold text-primary">{p.interestRate || "—"}</td>
-                    <td className="px-4 py-3 border-b border-border/30 text-muted-foreground text-xs">
-                      {new Date(p.lastUpdated).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                    <td className="px-4 py-3 border-b border-border/30">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(p.lastUpdated).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <FreshnessBadge lastUpdated={p.lastUpdated} />
+                          <ConfidenceBadge lastUpdated={p.lastUpdated} hasSource={!!p.sourceUrl} />
+                        </div>
+                      </div>
                     </td>
                     <td className="px-4 py-3 border-b border-border/30 text-right">
                       {deleteConfirm === p.id ? (
