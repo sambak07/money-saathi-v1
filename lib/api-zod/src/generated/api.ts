@@ -96,9 +96,12 @@ export const GetIncomeEntriesResponseItem = zod.object({
   id: zod.number(),
   userId: zod.number(),
   source: zod.string(),
+  category: zod.string().nullish(),
   amount: zod.number(),
   frequency: zod.enum(["monthly", "weekly", "yearly", "one_time"]),
+  date: zod.string().nullish(),
   description: zod.string().nullish(),
+  note: zod.string().nullish(),
   createdAt: zod.date(),
 });
 export const GetIncomeEntriesResponse = zod.array(GetIncomeEntriesResponseItem);
@@ -108,9 +111,12 @@ export const GetIncomeEntriesResponse = zod.array(GetIncomeEntriesResponseItem);
  */
 export const CreateIncomeEntryBody = zod.object({
   source: zod.string(),
+  category: zod.string().nullish(),
   amount: zod.number(),
   frequency: zod.enum(["monthly", "weekly", "yearly", "one_time"]),
+  date: zod.string().nullish(),
   description: zod.string().nullish(),
+  note: zod.string().nullish(),
 });
 
 /**
@@ -122,18 +128,24 @@ export const UpdateIncomeEntryParams = zod.object({
 
 export const UpdateIncomeEntryBody = zod.object({
   source: zod.string(),
+  category: zod.string().nullish(),
   amount: zod.number(),
   frequency: zod.enum(["monthly", "weekly", "yearly", "one_time"]),
+  date: zod.string().nullish(),
   description: zod.string().nullish(),
+  note: zod.string().nullish(),
 });
 
 export const UpdateIncomeEntryResponse = zod.object({
   id: zod.number(),
   userId: zod.number(),
   source: zod.string(),
+  category: zod.string().nullish(),
   amount: zod.number(),
   frequency: zod.enum(["monthly", "weekly", "yearly", "one_time"]),
+  date: zod.string().nullish(),
   description: zod.string().nullish(),
+  note: zod.string().nullish(),
   createdAt: zod.date(),
 });
 
@@ -157,7 +169,10 @@ export const GetExpenseEntriesResponseItem = zod.object({
   category: zod.string(),
   amount: zod.number(),
   frequency: zod.enum(["monthly", "weekly", "yearly", "one_time"]),
+  date: zod.string().nullish(),
+  paymentMode: zod.string().nullish(),
   description: zod.string().nullish(),
+  note: zod.string().nullish(),
   createdAt: zod.date(),
 });
 export const GetExpenseEntriesResponse = zod.array(
@@ -171,7 +186,10 @@ export const CreateExpenseEntryBody = zod.object({
   category: zod.string(),
   amount: zod.number(),
   frequency: zod.enum(["monthly", "weekly", "yearly", "one_time"]),
+  date: zod.string().nullish(),
+  paymentMode: zod.string().nullish(),
   description: zod.string().nullish(),
+  note: zod.string().nullish(),
 });
 
 /**
@@ -185,7 +203,10 @@ export const UpdateExpenseEntryBody = zod.object({
   category: zod.string(),
   amount: zod.number(),
   frequency: zod.enum(["monthly", "weekly", "yearly", "one_time"]),
+  date: zod.string().nullish(),
+  paymentMode: zod.string().nullish(),
   description: zod.string().nullish(),
+  note: zod.string().nullish(),
 });
 
 export const UpdateExpenseEntryResponse = zod.object({
@@ -194,7 +215,10 @@ export const UpdateExpenseEntryResponse = zod.object({
   category: zod.string(),
   amount: zod.number(),
   frequency: zod.enum(["monthly", "weekly", "yearly", "one_time"]),
+  date: zod.string().nullish(),
+  paymentMode: zod.string().nullish(),
   description: zod.string().nullish(),
+  note: zod.string().nullish(),
   createdAt: zod.date(),
 });
 
@@ -216,11 +240,17 @@ export const GetObligationsResponseItem = zod.object({
   id: zod.number(),
   userId: zod.number(),
   name: zod.string(),
+  category: zod.string().nullish(),
   totalAmount: zod.number(),
   monthlyPayment: zod.number(),
   interestRate: zod.number().nullish(),
   remainingTenure: zod.number().nullish(),
   obligationType: zod.enum(["loan", "mortgage", "credit_card", "other"]),
+  startDate: zod.string().nullish(),
+  endDate: zod.string().nullish(),
+  nextDueDate: zod.string().nullish(),
+  priority: zod.string().nullish(),
+  note: zod.string().nullish(),
   createdAt: zod.date(),
 });
 export const GetObligationsResponse = zod.array(GetObligationsResponseItem);
@@ -230,11 +260,17 @@ export const GetObligationsResponse = zod.array(GetObligationsResponseItem);
  */
 export const CreateObligationBody = zod.object({
   name: zod.string(),
+  category: zod.string().nullish(),
   totalAmount: zod.number(),
   monthlyPayment: zod.number(),
   interestRate: zod.number().nullish(),
   remainingTenure: zod.number().nullish(),
   obligationType: zod.enum(["loan", "mortgage", "credit_card", "other"]),
+  startDate: zod.string().nullish(),
+  endDate: zod.string().nullish(),
+  nextDueDate: zod.string().nullish(),
+  priority: zod.string().nullish(),
+  note: zod.string().nullish(),
 });
 
 /**
@@ -246,22 +282,34 @@ export const UpdateObligationParams = zod.object({
 
 export const UpdateObligationBody = zod.object({
   name: zod.string(),
+  category: zod.string().nullish(),
   totalAmount: zod.number(),
   monthlyPayment: zod.number(),
   interestRate: zod.number().nullish(),
   remainingTenure: zod.number().nullish(),
   obligationType: zod.enum(["loan", "mortgage", "credit_card", "other"]),
+  startDate: zod.string().nullish(),
+  endDate: zod.string().nullish(),
+  nextDueDate: zod.string().nullish(),
+  priority: zod.string().nullish(),
+  note: zod.string().nullish(),
 });
 
 export const UpdateObligationResponse = zod.object({
   id: zod.number(),
   userId: zod.number(),
   name: zod.string(),
+  category: zod.string().nullish(),
   totalAmount: zod.number(),
   monthlyPayment: zod.number(),
   interestRate: zod.number().nullish(),
   remainingTenure: zod.number().nullish(),
   obligationType: zod.enum(["loan", "mortgage", "credit_card", "other"]),
+  startDate: zod.string().nullish(),
+  endDate: zod.string().nullish(),
+  nextDueDate: zod.string().nullish(),
+  priority: zod.string().nullish(),
+  note: zod.string().nullish(),
   createdAt: zod.date(),
 });
 
@@ -283,6 +331,7 @@ export const GetSavingsEntriesResponseItem = zod.object({
   id: zod.number(),
   userId: zod.number(),
   name: zod.string(),
+  category: zod.string().nullish(),
   amount: zod.number(),
   savingsType: zod.enum([
     "emergency_fund",
@@ -291,7 +340,14 @@ export const GetSavingsEntriesResponseItem = zod.object({
     "general",
     "retirement",
   ]),
+  institution: zod.string().nullish(),
+  monthlyContribution: zod.number().nullish(),
+  expectedReturn: zod.number().nullish(),
+  startDate: zod.string().nullish(),
+  maturityDate: zod.string().nullish(),
+  linkedGoal: zod.string().nullish(),
   description: zod.string().nullish(),
+  note: zod.string().nullish(),
   createdAt: zod.date(),
 });
 export const GetSavingsEntriesResponse = zod.array(
@@ -303,6 +359,7 @@ export const GetSavingsEntriesResponse = zod.array(
  */
 export const CreateSavingsEntryBody = zod.object({
   name: zod.string(),
+  category: zod.string().nullish(),
   amount: zod.number(),
   savingsType: zod.enum([
     "emergency_fund",
@@ -311,7 +368,14 @@ export const CreateSavingsEntryBody = zod.object({
     "general",
     "retirement",
   ]),
+  institution: zod.string().nullish(),
+  monthlyContribution: zod.number().nullish(),
+  expectedReturn: zod.number().nullish(),
+  startDate: zod.string().nullish(),
+  maturityDate: zod.string().nullish(),
+  linkedGoal: zod.string().nullish(),
   description: zod.string().nullish(),
+  note: zod.string().nullish(),
 });
 
 /**
@@ -323,6 +387,7 @@ export const UpdateSavingsEntryParams = zod.object({
 
 export const UpdateSavingsEntryBody = zod.object({
   name: zod.string(),
+  category: zod.string().nullish(),
   amount: zod.number(),
   savingsType: zod.enum([
     "emergency_fund",
@@ -331,13 +396,21 @@ export const UpdateSavingsEntryBody = zod.object({
     "general",
     "retirement",
   ]),
+  institution: zod.string().nullish(),
+  monthlyContribution: zod.number().nullish(),
+  expectedReturn: zod.number().nullish(),
+  startDate: zod.string().nullish(),
+  maturityDate: zod.string().nullish(),
+  linkedGoal: zod.string().nullish(),
   description: zod.string().nullish(),
+  note: zod.string().nullish(),
 });
 
 export const UpdateSavingsEntryResponse = zod.object({
   id: zod.number(),
   userId: zod.number(),
   name: zod.string(),
+  category: zod.string().nullish(),
   amount: zod.number(),
   savingsType: zod.enum([
     "emergency_fund",
@@ -346,7 +419,14 @@ export const UpdateSavingsEntryResponse = zod.object({
     "general",
     "retirement",
   ]),
+  institution: zod.string().nullish(),
+  monthlyContribution: zod.number().nullish(),
+  expectedReturn: zod.number().nullish(),
+  startDate: zod.string().nullish(),
+  maturityDate: zod.string().nullish(),
+  linkedGoal: zod.string().nullish(),
   description: zod.string().nullish(),
+  note: zod.string().nullish(),
   createdAt: zod.date(),
 });
 

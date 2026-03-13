@@ -82,9 +82,12 @@ export interface IncomeEntry {
   id: number;
   userId: number;
   source: string;
+  category?: string | null;
   amount: number;
   frequency: IncomeEntryFrequency;
+  date?: string | null;
   description?: string | null;
+  note?: string | null;
   createdAt: string;
 }
 
@@ -100,9 +103,12 @@ export const CreateIncomeEntryFrequency = {
 
 export interface CreateIncomeEntry {
   source: string;
+  category?: string | null;
   amount: number;
   frequency: CreateIncomeEntryFrequency;
+  date?: string | null;
   description?: string | null;
+  note?: string | null;
 }
 
 export type ExpenseEntryFrequency =
@@ -121,7 +127,10 @@ export interface ExpenseEntry {
   category: string;
   amount: number;
   frequency: ExpenseEntryFrequency;
+  date?: string | null;
+  paymentMode?: string | null;
   description?: string | null;
+  note?: string | null;
   createdAt: string;
 }
 
@@ -139,7 +148,10 @@ export interface CreateExpenseEntry {
   category: string;
   amount: number;
   frequency: CreateExpenseEntryFrequency;
+  date?: string | null;
+  paymentMode?: string | null;
   description?: string | null;
+  note?: string | null;
 }
 
 export type ObligationObligationType =
@@ -156,11 +168,17 @@ export interface Obligation {
   id: number;
   userId: number;
   name: string;
+  category?: string | null;
   totalAmount: number;
   monthlyPayment: number;
   interestRate?: number | null;
   remainingTenure?: number | null;
   obligationType: ObligationObligationType;
+  startDate?: string | null;
+  endDate?: string | null;
+  nextDueDate?: string | null;
+  priority?: string | null;
+  note?: string | null;
   createdAt: string;
 }
 
@@ -176,11 +194,17 @@ export const CreateObligationObligationType = {
 
 export interface CreateObligation {
   name: string;
+  category?: string | null;
   totalAmount: number;
   monthlyPayment: number;
   interestRate?: number | null;
   remainingTenure?: number | null;
   obligationType: CreateObligationObligationType;
+  startDate?: string | null;
+  endDate?: string | null;
+  nextDueDate?: string | null;
+  priority?: string | null;
+  note?: string | null;
 }
 
 export type SavingsEntrySavingsType =
@@ -198,9 +222,17 @@ export interface SavingsEntry {
   id: number;
   userId: number;
   name: string;
+  category?: string | null;
   amount: number;
   savingsType: SavingsEntrySavingsType;
+  institution?: string | null;
+  monthlyContribution?: number | null;
+  expectedReturn?: number | null;
+  startDate?: string | null;
+  maturityDate?: string | null;
+  linkedGoal?: string | null;
   description?: string | null;
+  note?: string | null;
   createdAt: string;
 }
 
@@ -217,9 +249,17 @@ export const CreateSavingsEntrySavingsType = {
 
 export interface CreateSavingsEntry {
   name: string;
+  category?: string | null;
   amount: number;
   savingsType: CreateSavingsEntrySavingsType;
+  institution?: string | null;
+  monthlyContribution?: number | null;
+  expectedReturn?: number | null;
+  startDate?: string | null;
+  maturityDate?: string | null;
+  linkedGoal?: string | null;
   description?: string | null;
+  note?: string | null;
 }
 
 export type FinancialScoreCategory =

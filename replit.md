@@ -65,9 +65,20 @@ users, profiles, income_entries, expense_entries, obligations, savings_entries, 
 - Dashboard, Scores, Reports routes all detect profile type and use correct engine
 - Business score maps to DB columns: savingsRatio→profitMargin, emergencyFundCoverage→cashReserveMonths, expenseRatio→revenueStabilityRatio
 - Frontend dashboard: `ModeBadge`, `IndividualMetrics`/`BusinessMetrics` components
-- Data entry: `useLabels()` hook relabels tabs (Revenue/Operating Expenses/Business Loans/Cash Balance for business)
+- Data entry: `useLabels()` hook relabels tabs per mode; structured dropdown categories defined in `src/lib/categories.ts`
 - Score page: different breakdown labels per mode
 - Business obligation types use valid backend enums (loan/mortgage/credit_card/other) with relabeled UI text
+
+## Structured Data Entry (categories.ts)
+
+- All 4 modules (Income, Expenses, Obligations, Savings) use structured dropdown categories
+- Individual vs Business category sets defined in `artifacts/money-saathi-v1/src/lib/categories.ts`
+- **Income**: category dropdown + source name + amount + frequency + date + note
+- **Expenses**: category dropdown + amount + frequency + payment mode + date + note
+- **Obligations**: category dropdown + lender name + outstanding amount + EMI + interest rate + type + start/end/due dates + priority + note
+- **Savings**: category dropdown + savings type + institution + name + amount + monthly contribution + expected return + start/maturity dates + linked goal + note
+- Edit flow: pencil icon opens modal pre-filled with existing data
+- Payment modes: Cash, Bank Transfer, UPI/Mobile Pay, Credit Card, Debit Card, Cheque, Auto Debit, Other
 
 ## Frontend Pages
 

@@ -697,12 +697,21 @@ components:
           type: integer
         source:
           type: string
+        category:
+          type: string
+          nullable: true
         amount:
           type: number
         frequency:
           type: string
           enum: [monthly, weekly, yearly, one_time]
+        date:
+          type: string
+          nullable: true
         description:
+          type: string
+          nullable: true
+        note:
           type: string
           nullable: true
         createdAt:
@@ -721,12 +730,21 @@ components:
       properties:
         source:
           type: string
+        category:
+          type: string
+          nullable: true
         amount:
           type: number
         frequency:
           type: string
           enum: [monthly, weekly, yearly, one_time]
+        date:
+          type: string
+          nullable: true
         description:
+          type: string
+          nullable: true
+        note:
           type: string
           nullable: true
       required:
@@ -748,7 +766,16 @@ components:
         frequency:
           type: string
           enum: [monthly, weekly, yearly, one_time]
+        date:
+          type: string
+          nullable: true
+        paymentMode:
+          type: string
+          nullable: true
         description:
+          type: string
+          nullable: true
+        note:
           type: string
           nullable: true
         createdAt:
@@ -772,7 +799,16 @@ components:
         frequency:
           type: string
           enum: [monthly, weekly, yearly, one_time]
+        date:
+          type: string
+          nullable: true
+        paymentMode:
+          type: string
+          nullable: true
         description:
+          type: string
+          nullable: true
+        note:
           type: string
           nullable: true
       required:
@@ -789,6 +825,9 @@ components:
           type: integer
         name:
           type: string
+        category:
+          type: string
+          nullable: true
         totalAmount:
           type: number
         monthlyPayment:
@@ -802,6 +841,21 @@ components:
         obligationType:
           type: string
           enum: [loan, mortgage, credit_card, other]
+        startDate:
+          type: string
+          nullable: true
+        endDate:
+          type: string
+          nullable: true
+        nextDueDate:
+          type: string
+          nullable: true
+        priority:
+          type: string
+          nullable: true
+        note:
+          type: string
+          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -819,6 +873,9 @@ components:
       properties:
         name:
           type: string
+        category:
+          type: string
+          nullable: true
         totalAmount:
           type: number
         monthlyPayment:
@@ -832,6 +889,21 @@ components:
         obligationType:
           type: string
           enum: [loan, mortgage, credit_card, other]
+        startDate:
+          type: string
+          nullable: true
+        endDate:
+          type: string
+          nullable: true
+        nextDueDate:
+          type: string
+          nullable: true
+        priority:
+          type: string
+          nullable: true
+        note:
+          type: string
+          nullable: true
       required:
         - name
         - totalAmount
@@ -847,12 +919,36 @@ components:
           type: integer
         name:
           type: string
+        category:
+          type: string
+          nullable: true
         amount:
           type: number
         savingsType:
           type: string
           enum: [emergency_fund, investment, fixed_deposit, general, retirement]
+        institution:
+          type: string
+          nullable: true
+        monthlyContribution:
+          type: number
+          nullable: true
+        expectedReturn:
+          type: number
+          nullable: true
+        startDate:
+          type: string
+          nullable: true
+        maturityDate:
+          type: string
+          nullable: true
+        linkedGoal:
+          type: string
+          nullable: true
         description:
+          type: string
+          nullable: true
+        note:
           type: string
           nullable: true
         createdAt:
@@ -871,12 +967,36 @@ components:
       properties:
         name:
           type: string
+        category:
+          type: string
+          nullable: true
         amount:
           type: number
         savingsType:
           type: string
           enum: [emergency_fund, investment, fixed_deposit, general, retirement]
+        institution:
+          type: string
+          nullable: true
+        monthlyContribution:
+          type: number
+          nullable: true
+        expectedReturn:
+          type: number
+          nullable: true
+        startDate:
+          type: string
+          nullable: true
+        maturityDate:
+          type: string
+          nullable: true
+        linkedGoal:
+          type: string
+          nullable: true
         description:
+          type: string
+          nullable: true
+        note:
           type: string
           nullable: true
       required:
