@@ -1,0 +1,137 @@
+Refine Money Saathi by building a strong Input Control Layer.
+
+Do not add new modules.
+Focus only on improving the existing financial data entry system for both Individual and Small Business modes.
+
+1. Standardize all data entry forms with structured dropdowns and supporting fields.
+
+For Individual income:
+- Salary
+- Bonus / Allowance
+- Business Income
+- Freelance / Side Income
+- Rental Income
+- Pension
+- Remittance Received
+- Farming Income
+- Livestock / Agriculture Income
+- Investment Income
+- Interest Income
+- Other Income
+
+For Individual expenses:
+- Groceries / Food
+- Rent / Housing
+- Utilities
+- Mobile / Internet
+- Transport / Fuel
+- Education
+- Healthcare / Medical
+- Loan EMI
+- Insurance Premium
+- Family Support
+- Domestic Help
+- Personal Care
+- Clothing
+- Festival / Religious / Social Events
+- Travel
+- Entertainment
+- Savings Transfer
+- Investment Contribution
+- Emergency Expense
+- Miscellaneous
+
+For Individual long-term obligations:
+- Housing Loan
+- Vehicle Loan
+- Education Loan
+- Personal Loan
+- Business Loan
+- Loan Against Deposit
+- Credit Card / Short-Term Debt
+- Insurance Commitment
+- Family Support Commitment
+- Child Education Commitment
+- Marriage Commitment
+- Medical Support Commitment
+- Tax / Statutory Obligation
+- Other Long-Term Obligation
+
+For Individual long-term savings/investments:
+- Savings Account Reserve
+- Emergency Fund
+- Fixed Deposit
+- Recurring Deposit
+- Pension / Provident Fund
+- Insurance Savings / Endowment
+- Shares / Equity
+- Bonds
+- Gold / Precious Metals
+- Land / Property Savings
+- Child Education Fund
+- Retirement Fund
+- Goal-Based Savings
+- Other Investment
+
+2. Improve Small Business mode with separate structured categories.
+
+Business income:
+- Product Sales
+- Service Income
+- Contract Income
+- Commission Income
+- Seasonal Sales
+- Rental Income
+- Other Business Income
+
+Business expenses:
+- Inventory / Stock Purchase
+- Rent / Lease
+- Salaries / Wages
+- Utilities
+- Transport / Delivery
+- Loan Repayment
+- Marketing / Promotion
+- Equipment / Maintenance
+- Tax / License / Fees
+- Supplier Payments
+- Digital / Internet / Software
+- Miscellaneous Business Expense
+
+Business obligations:
+- Working Capital Loan
+- Equipment Loan
+- Business Expansion Loan
+- Supplier Credit
+- Rent Liability
+- Salary Liability
+- Tax Liability
+- Other Business Obligation
+
+Business reserves:
+- Cash Reserve
+- Emergency Business Fund
+- Reinvestment Fund
+- Tax Reserve
+- Inventory Reserve
+- Expansion Fund
+- Loan Buffer Fund
+- Other Business Savings
+
+3. For every entry form, include:
+- category dropdown
+- amount
+- frequency
+- date
+- optional note
+
+4. Add:
+- edit flow
+- delete flow
+- repeat monthly toggle where relevant
+- empty states with guidance
+- clear separation between Individual and Small Business mode
+
+5. Keep existing dashboard, financial health score, loan calculator, advisory, and report logic intact.
+
+Focus on speed, structured data quality, and usability.
