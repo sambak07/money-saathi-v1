@@ -67,6 +67,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     email: user.email,
     name: user.name,
     hasProfile: !!profile,
+    profileType: profile?.profileType || null,
   });
 });
 
@@ -84,6 +85,7 @@ router.get("/auth/me", requireAuth, async (req, res): Promise<void> => {
     email: user.email,
     name: user.name,
     hasProfile: !!profile,
+    profileType: profile?.profileType || null,
   });
 });
 

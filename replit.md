@@ -53,13 +53,29 @@ artifacts-monorepo/
 
 users, profiles, income_entries, expense_entries, obligations, savings_entries, financial_scores, loan_calculations, reports
 
+## Dual Financial Mode (Individual vs Small Business)
+
+- **Profile type** stored in `user_profiles.profile_type` (`individual` | `small_business`)
+- Auth responses (`/api/auth/me`, login, register) include `profileType` field
+- **Individual scoring**: savingsRatio, debtRatio, emergencyFundCoverage, expenseRatio (each 0–25)
+- **Business scoring**: profitMargin, debtRatio, cashReserveMonths, revenueStabilityRatio (each 0–25)
+  - Revenue stability uses HHI-based income concentration: more diversified sources = higher score
+  - Cash reserve target: 3 months (vs 6 months emergency fund for individuals)
+- `getProfileType(userId)` in `financialEngine.ts` detects mode
+- Dashboard, Scores, Reports routes all detect profile type and use correct engine
+- Business score maps to DB columns: savingsRatio→profitMargin, emergencyFundCoverage→cashReserveMonths, expenseRatio→revenueStabilityRatio
+- Frontend dashboard: `ModeBadge`, `IndividualMetrics`/`BusinessMetrics` components
+- Data entry: `useLabels()` hook relabels tabs (Revenue/Operating Expenses/Business Loans/Cash Balance for business)
+- Score page: different breakdown labels per mode
+- Business obligation types use valid backend enums (loan/mortgage/credit_card/other) with relabeled UI text
+
 ## Frontend Pages
 
 - `/login` — Login/Register with split-screen design
 - `/onboarding` — Profile type selection (Individual / Small Business)
-- `/dashboard` — Verdict Layer (score ring, main risk, next best action), metric cards with granular empty-state hints, income vs expenses chart, top recommendation
-- `/data-entry` — Tabbed CRUD for income, expenses, obligations, savings
-- `/score` — Health score breakdown (4 components: savings, debt, emergency fund, expenses)
+- `/dashboard` — Mode-aware: Verdict Layer, metric cards (Individual: Net Savings/Debt Ratio/Emergency Fund, Business: Net Profit/Debt-to-Revenue/Cash Reserve), chart, top recommendation
+- `/data-entry` — Mode-aware tabbed CRUD (Individual: Income/Expenses/Personal Loans/Savings, Business: Revenue/Operating Expenses/Business Loans/Cash Balance)
+- `/score` — Mode-aware health score breakdown (Individual: Savings/Debt/Emergency/Expenses, Business: Profit Margin/Debt-to-Revenue/Cash Reserve/Revenue Stability)
 - `/loans` — Loan calculator with EMI, affordability analysis
 - `/advisory` — AI-generated financial recommendations
 - `/reports` — Monthly financial reports with verdict strip (main risk + next action) and granular metric hints

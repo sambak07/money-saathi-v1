@@ -34,6 +34,7 @@ export interface AuthResponse {
   email: string;
   name: string;
   hasProfile: boolean;
+  profileType?: "individual" | "small_business" | null;
 }
 
 export type UserProfileProfileType =
@@ -349,6 +350,7 @@ export interface DashboardDataPresence {
 }
 
 export interface DashboardData {
+  profileType: "individual" | "small_business";
   financialScore?: FinancialScore;
   verdict: DashboardDataVerdict;
   totalIncome: number;

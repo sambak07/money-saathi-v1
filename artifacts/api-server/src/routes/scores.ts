@@ -2,7 +2,10 @@ import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
 import { db, financialScoresTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
-import { getFinancialSummary, calculateScore } from "../lib/financialEngine";
+import {
+  getFinancialSummary, getProfileType,
+  calculateScore, calculateBusinessScore,
+} from "../lib/financialEngine";
 
 const router: IRouter = Router();
 
@@ -19,12 +22,48 @@ router.get("/scores", requireAuth, async (req, res): Promise<void> => {
     return;
   }
 
+  const profileType = await getProfileType(req.userId!);
+  if (profileType === "small_business") {
+    const summary = await getFinancialSummary(req.userId!);
+    const bScore = calculateBusinessScore(summary);
+    res.json({
+      ...score,
+      ...bScore,
+      savingsRatio: bScore.profitMargin,
+      savingsScore: bScore.profitScore,
+      emergencyFundCoverage: bScore.cashReserveMonths,
+      emergencyScore: bScore.cashReserveScore,
+      expenseRatio: bScore.revenueStabilityRatio,
+      expenseScore: bScore.revenueStabilityScore,
+    });
+    return;
+  }
+
   res.json(score);
 });
 
 router.post("/scores/calculate", requireAuth, async (req, res): Promise<void> => {
+  const profileType = await getProfileType(req.userId!);
   const summary = await getFinancialSummary(req.userId!);
-  const scoreData = calculateScore(summary);
+
+  let scoreData: any;
+  if (profileType === "small_business") {
+    const bScore = calculateBusinessScore(summary);
+    scoreData = {
+      totalScore: bScore.totalScore,
+      category: bScore.category,
+      savingsRatio: bScore.profitMargin,
+      debtRatio: bScore.debtRatio,
+      emergencyFundCoverage: bScore.cashReserveMonths,
+      expenseRatio: bScore.revenueStabilityRatio,
+      savingsScore: bScore.profitScore,
+      debtScore: bScore.debtScore,
+      emergencyScore: bScore.cashReserveScore,
+      expenseScore: bScore.revenueStabilityScore,
+    };
+  } else {
+    scoreData = calculateScore(summary);
+  }
 
   const [saved] = await db
     .insert(financialScoresTable)

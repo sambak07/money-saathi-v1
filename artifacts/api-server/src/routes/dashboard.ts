@@ -2,15 +2,51 @@ import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
 import { db, financialScoresTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
-import { getFinancialSummary, calculateScore, generateAdvisory, generateVerdict } from "../lib/financialEngine";
+import {
+  getFinancialSummary, getProfileType,
+  calculateScore, generateAdvisory, generateVerdict,
+  calculateBusinessScore, generateBusinessAdvisory, generateBusinessVerdict,
+} from "../lib/financialEngine";
 
 const router: IRouter = Router();
 
 router.get("/dashboard", requireAuth, async (req, res): Promise<void> => {
+  const profileType = await getProfileType(req.userId!);
   const summary = await getFinancialSummary(req.userId!);
-  const scoreData = calculateScore(summary);
-  const advisory = generateAdvisory(summary, scoreData);
-  const verdict = generateVerdict(summary, scoreData);
+
+  const isBusiness = profileType === "small_business";
+
+  let scoreData: any;
+  let advisory: any;
+  let verdict: any;
+
+  if (isBusiness) {
+    const bScore = calculateBusinessScore(summary);
+    advisory = generateBusinessAdvisory(summary, bScore);
+    verdict = generateBusinessVerdict(summary, bScore);
+    scoreData = {
+      totalScore: bScore.totalScore,
+      category: bScore.category,
+      profitMargin: bScore.profitMargin,
+      debtRatio: bScore.debtRatio,
+      cashReserveMonths: bScore.cashReserveMonths,
+      revenueStabilityRatio: bScore.revenueStabilityRatio,
+      profitScore: bScore.profitScore,
+      debtScore: bScore.debtScore,
+      cashReserveScore: bScore.cashReserveScore,
+      revenueStabilityScore: bScore.revenueStabilityScore,
+      savingsRatio: 0,
+      emergencyFundCoverage: 0,
+      expenseRatio: 0,
+      savingsScore: 0,
+      emergencyScore: 0,
+      expenseScore: 0,
+    };
+  } else {
+    scoreData = calculateScore(summary);
+    advisory = generateAdvisory(summary, scoreData);
+    verdict = generateVerdict(summary, scoreData);
+  }
 
   const [existingScore] = await db
     .select()
@@ -37,12 +73,17 @@ router.get("/dashboard", requireAuth, async (req, res): Promise<void> => {
     calculatedAt: existingScore?.calculatedAt || new Date(),
   };
 
+  const netValue = isBusiness
+    ? Math.round((summary.totalMonthlyIncome - summary.totalMonthlyExpenses - summary.totalMonthlyObligations) * 100) / 100
+    : Math.round((summary.totalMonthlyIncome - summary.totalMonthlyExpenses - summary.totalMonthlyObligations) * 100) / 100;
+
   res.json({
+    profileType,
     financialScore,
     verdict,
     totalIncome: Math.round(summary.totalMonthlyIncome * 100) / 100,
     totalExpenses: Math.round(summary.totalMonthlyExpenses * 100) / 100,
-    netSavings: Math.round((summary.totalMonthlyIncome - summary.totalMonthlyExpenses - summary.totalMonthlyObligations) * 100) / 100,
+    netSavings: netValue,
     totalObligations: Math.round(summary.totalMonthlyObligations * 100) / 100,
     totalSavingsBalance: Math.round(summary.totalSavingsBalance * 100) / 100,
     topRecommendation: advisory[0],

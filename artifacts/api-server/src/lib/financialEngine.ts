@@ -1,4 +1,4 @@
-import { db, incomeEntriesTable, expenseEntriesTable, obligationsTable, savingsTable } from "@workspace/db";
+import { db, incomeEntriesTable, expenseEntriesTable, obligationsTable, savingsTable, userProfilesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 
 function toMonthly(amount: number, frequency: string): number {
@@ -8,6 +8,13 @@ function toMonthly(amount: number, frequency: string): number {
     case "one_time": return amount / 12;
     default: return amount;
   }
+}
+
+export type ProfileMode = "individual" | "small_business";
+
+export async function getProfileType(userId: number): Promise<ProfileMode> {
+  const [profile] = await db.select().from(userProfilesTable).where(eq(userProfilesTable.userId, userId));
+  return (profile?.profileType === "small_business") ? "small_business" : "individual";
 }
 
 export interface ScoreBreakdown {
@@ -23,12 +30,27 @@ export interface ScoreBreakdown {
   expenseScore: number;
 }
 
+export interface BusinessScoreBreakdown {
+  totalScore: number;
+  category: string;
+  profitMargin: number;
+  debtRatio: number;
+  cashReserveMonths: number;
+  revenueStabilityRatio: number;
+  profitScore: number;
+  debtScore: number;
+  cashReserveScore: number;
+  revenueStabilityScore: number;
+}
+
 export interface FinancialSummary {
   totalMonthlyIncome: number;
   totalMonthlyExpenses: number;
   totalMonthlyObligations: number;
   totalSavingsBalance: number;
   emergencyFundBalance: number;
+  incomeSourceCount: number;
+  incomeConcentration: number;
 }
 
 export async function getFinancialSummary(userId: number): Promise<FinancialSummary> {
@@ -45,13 +67,30 @@ export async function getFinancialSummary(userId: number): Promise<FinancialSumm
     .filter(s => s.savingsType === "emergency_fund")
     .reduce((sum, s) => sum + s.amount, 0);
 
+  let incomeConcentration = 0;
+  if (totalMonthlyIncome > 0 && incomes.length > 0) {
+    const shares = incomes.map(i => toMonthly(i.amount, i.frequency) / totalMonthlyIncome);
+    const hhi = shares.reduce((sum, s) => sum + s * s, 0);
+    incomeConcentration = hhi;
+  }
+
   return {
     totalMonthlyIncome,
     totalMonthlyExpenses,
     totalMonthlyObligations,
     totalSavingsBalance,
     emergencyFundBalance,
+    incomeSourceCount: incomes.length,
+    incomeConcentration,
   };
+}
+
+function getCategory(totalScore: number): string {
+  if (totalScore >= 80) return "Excellent";
+  if (totalScore >= 65) return "Strong";
+  if (totalScore >= 45) return "Moderate";
+  if (totalScore >= 25) return "Risk";
+  return "Critical";
 }
 
 export function calculateScore(summary: FinancialSummary): ScoreBreakdown {
@@ -84,16 +123,9 @@ export function calculateScore(summary: FinancialSummary): ScoreBreakdown {
 
   const totalScore = Math.round(Math.min(100, Math.max(0, savingsScore + debtScore + emergencyScore + expenseScore)));
 
-  let category: string;
-  if (totalScore >= 80) category = "Excellent";
-  else if (totalScore >= 65) category = "Strong";
-  else if (totalScore >= 45) category = "Moderate";
-  else if (totalScore >= 25) category = "Risk";
-  else category = "Critical";
-
   return {
     totalScore,
-    category,
+    category: getCategory(totalScore),
     savingsRatio: Math.round(savingsRatio * 1000) / 1000,
     debtRatio: Math.round(debtRatio * 1000) / 1000,
     emergencyFundCoverage: Math.round(emergencyFundCoverage * 100) / 100,
@@ -102,6 +134,67 @@ export function calculateScore(summary: FinancialSummary): ScoreBreakdown {
     debtScore: Math.round(debtScore * 10) / 10,
     emergencyScore: Math.round(emergencyScore * 10) / 10,
     expenseScore: Math.round(expenseScore * 10) / 10,
+  };
+}
+
+export function calculateBusinessScore(summary: FinancialSummary): BusinessScoreBreakdown {
+  const revenue = summary.totalMonthlyIncome || 1;
+  const opex = summary.totalMonthlyExpenses;
+  const debt = summary.totalMonthlyObligations;
+  const cashBalance = summary.totalSavingsBalance;
+
+  const netProfit = revenue - opex - debt;
+  const profitMargin = netProfit / revenue;
+  const debtRatio = debt / revenue;
+  const cashReserveMonths = cashBalance / (opex || 1);
+  const hhi = summary.incomeConcentration || 0;
+  const diversification = summary.incomeSourceCount > 1 ? (1 - hhi) : 0;
+  const revenueStabilityRatio = summary.totalMonthlyIncome > 0
+    ? Math.min(1, 0.5 + diversification * 0.5)
+    : 0;
+
+  let profitScore: number;
+  if (profitMargin >= 0.2) profitScore = 25;
+  else if (profitMargin >= 0.1) profitScore = 20;
+  else if (profitMargin >= 0.05) profitScore = 15;
+  else if (profitMargin >= 0) profitScore = 10;
+  else profitScore = 5;
+
+  let debtScore = 25;
+  if (debtRatio > 0.5) debtScore = 5;
+  else if (debtRatio > 0.4) debtScore = 10;
+  else if (debtRatio > 0.3) debtScore = 15;
+  else if (debtRatio > 0.2) debtScore = 20;
+
+  let cashReserveScore = Math.min(25, cashReserveMonths * 8.33);
+  if (cashReserveMonths >= 3) cashReserveScore = 25;
+
+  let revenueStabilityScore: number;
+  if (summary.totalMonthlyIncome <= 0) {
+    revenueStabilityScore = 0;
+  } else if (summary.incomeSourceCount >= 3 && hhi < 0.4) {
+    revenueStabilityScore = 25;
+  } else if (summary.incomeSourceCount >= 2 && hhi < 0.6) {
+    revenueStabilityScore = 20;
+  } else if (summary.incomeSourceCount >= 2) {
+    revenueStabilityScore = 15;
+  } else {
+    revenueStabilityScore = 10;
+  }
+
+  const totalScore = Math.round(Math.min(100, Math.max(0, profitScore + debtScore + cashReserveScore + revenueStabilityScore)));
+
+  return {
+    totalScore,
+    category: getCategory(totalScore),
+    profitMargin: Math.round(profitMargin * 1000) / 1000,
+    debtRatio: Math.round(debtRatio * 1000) / 1000,
+    cashReserveMonths: Math.round(cashReserveMonths * 100) / 100,
+    revenueStabilityRatio: Math.round(revenueStabilityRatio * 1000) / 1000,
+    profitScore: Math.round(profitScore * 10) / 10,
+    debtScore: Math.round(debtScore * 10) / 10,
+    cashReserveScore: Math.round(cashReserveScore * 10) / 10,
+    revenueStabilityScore: Math.round(revenueStabilityScore * 10) / 10,
   };
 }
 
@@ -203,6 +296,102 @@ export function generateVerdict(summary: FinancialSummary, score: ScoreBreakdown
   if (score.totalScore >= 80) {
     mainRisk = "No major risks detected";
     nextBestAction = "Continue maintaining your current financial habits";
+  }
+
+  return {
+    category: score.category,
+    mainRisk,
+    nextBestAction,
+    hasData,
+  };
+}
+
+export function generateBusinessVerdict(summary: FinancialSummary, score: BusinessScoreBreakdown): Verdict {
+  const revenue = summary.totalMonthlyIncome;
+  const hasData = revenue > 0 || summary.totalMonthlyExpenses > 0 || summary.totalSavingsBalance > 0 || summary.totalMonthlyObligations > 0;
+
+  if (!hasData) {
+    return {
+      category: score.category,
+      mainRisk: "No business data entered yet",
+      nextBestAction: "Add your monthly revenue to get started",
+      hasData: false,
+    };
+  }
+
+  if (revenue === 0) {
+    return {
+      category: score.category,
+      mainRisk: "No revenue recorded",
+      nextBestAction: "Add your monthly revenue so we can analyse your business health",
+      hasData: true,
+    };
+  }
+
+  if (score.totalScore >= 80) {
+    return {
+      category: score.category,
+      mainRisk: "No major risks detected",
+      nextBestAction: "Continue maintaining your current business performance",
+      hasData: true,
+    };
+  }
+
+  const components = [
+    { key: "profit", score: score.profitScore },
+    { key: "debt", score: score.debtScore },
+    { key: "cash", score: score.cashReserveScore },
+    { key: "revenue", score: score.revenueStabilityScore },
+  ];
+  components.sort((a, b) => a.score - b.score);
+  const weakest = components[0];
+
+  let mainRisk: string;
+  let nextBestAction: string;
+
+  switch (weakest.key) {
+    case "profit": {
+      const marginPct = Math.round(score.profitMargin * 100);
+      const opex = summary.totalMonthlyExpenses;
+      const targetOpex = revenue * 0.8;
+      const excess = Math.round(Math.max(0, opex - targetOpex));
+      mainRisk = `Low profit margin (${marginPct}% of revenue)`;
+      if (excess > 0) {
+        nextBestAction = `Reduce operating expenses by Nu. ${excess.toLocaleString()} to reach a 20% profit margin`;
+      } else {
+        nextBestAction = "Focus on increasing revenue or reducing costs to improve profitability";
+      }
+      break;
+    }
+    case "debt": {
+      const debtPct = Math.round(score.debtRatio * 100);
+      const excessDebt = Math.round(summary.totalMonthlyObligations - revenue * 0.3);
+      mainRisk = `High debt-to-revenue ratio (${debtPct}%)`;
+      if (excessDebt > 0) {
+        nextBestAction = `Reduce monthly loan payments by Nu. ${excessDebt.toLocaleString()} to reach the safe 30% threshold`;
+      } else {
+        nextBestAction = "Avoid new borrowing until the debt ratio drops below 30%";
+      }
+      break;
+    }
+    case "cash": {
+      const months = Math.round(score.cashReserveMonths * 10) / 10;
+      const targetMonths = Math.max(1, 3 - months);
+      const gap = Math.round(summary.totalMonthlyExpenses * targetMonths);
+      mainRisk = `Insufficient cash reserve (${months} months of expenses)`;
+      if (gap > 0) {
+        nextBestAction = `Build a 3-month operating reserve — save Nu. ${gap.toLocaleString()} in a business savings account`;
+      } else {
+        nextBestAction = "Continue building your cash reserve for business continuity";
+      }
+      break;
+    }
+    case "revenue":
+    default: {
+      mainRisk = "Revenue stability needs attention";
+      nextBestAction = "Diversify revenue streams and secure recurring contracts to stabilise income";
+      break;
+    }
   }
 
   return {
@@ -322,6 +511,72 @@ export function generateAdvisory(summary: FinancialSummary, score: ScoreBreakdow
       category: "savings",
       title: "Great Financial Health!",
       description: "Your finances are in excellent shape. Continue maintaining your current habits.",
+      priority: "low",
+      currentValue: score.totalScore,
+      targetValue: 100,
+    });
+  }
+
+  recommendations.sort((a, b) => {
+    const p: Record<string, number> = { high: 0, medium: 1, low: 2 };
+    return (p[a.priority] ?? 1) - (p[b.priority] ?? 1);
+  });
+
+  return recommendations;
+}
+
+export function generateBusinessAdvisory(summary: FinancialSummary, score: BusinessScoreBreakdown): AdvisoryItem[] {
+  const recommendations: AdvisoryItem[] = [];
+
+  if (score.profitScore < 20) {
+    recommendations.push({
+      category: "profit",
+      title: "Improve Profit Margin",
+      description: `Your profit margin is ${Math.round(score.profitMargin * 100)}% of revenue. Aim for at least 20% for a healthy business.`,
+      priority: score.profitScore < 10 ? "high" : "medium",
+      currentValue: Math.round(score.profitMargin * 100),
+      targetValue: 20,
+    });
+  }
+
+  if (score.debtScore < 20) {
+    recommendations.push({
+      category: "debt",
+      title: "Reduce Business Debt",
+      description: `Your monthly loan payments are ${Math.round(score.debtRatio * 100)}% of revenue. Keep it below 30%.`,
+      priority: score.debtScore < 15 ? "high" : "medium",
+      currentValue: Math.round(score.debtRatio * 100),
+      targetValue: 30,
+    });
+  }
+
+  if (score.cashReserveScore < 20) {
+    recommendations.push({
+      category: "cash_reserve",
+      title: "Build Cash Reserve",
+      description: `Your cash reserve covers ${score.cashReserveMonths.toFixed(1)} months of operating expenses. Aim for at least 3 months.`,
+      priority: score.cashReserveMonths < 1 ? "high" : "medium",
+      currentValue: Math.round(score.cashReserveMonths * 10) / 10,
+      targetValue: 3,
+    });
+  }
+
+  if (score.revenueStabilityScore < 20) {
+    recommendations.push({
+      category: "revenue",
+      title: "Stabilise Revenue",
+      description: "Diversify income sources and secure recurring contracts for predictable cash flow.",
+      priority: "high",
+      currentValue: Math.round(score.revenueStabilityRatio * 100),
+      targetValue: 100,
+    });
+  }
+
+  if (recommendations.length === 0) {
+    recommendations.push({
+      category: "profit",
+      title: "Strong Business Health!",
+      description: "Your business finances are in great shape. Focus on growth and market expansion.",
       priority: "low",
       currentValue: score.totalScore,
       targetValue: 100,

@@ -24,6 +24,7 @@ export interface DashboardDataPresence {
 }
 
 export interface DashboardData {
+  profileType: "individual" | "small_business";
   financialScore?: FinancialScore;
   verdict: DashboardDataVerdict;
   totalIncome: number;

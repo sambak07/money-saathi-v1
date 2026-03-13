@@ -2,7 +2,11 @@ import { Router, type IRouter } from "express";
 import { eq, and, desc } from "drizzle-orm";
 import { db, reportsTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
-import { getFinancialSummary, calculateScore, generateAdvisory, generateVerdictFromReport } from "../lib/financialEngine";
+import {
+  getFinancialSummary, getProfileType,
+  calculateScore, generateAdvisory, generateVerdictFromReport,
+  calculateBusinessScore, generateBusinessAdvisory,
+} from "../lib/financialEngine";
 
 const router: IRouter = Router();
 
@@ -40,9 +44,11 @@ router.post("/reports/generate", requireAuth, async (req, res): Promise<void> =>
     return;
   }
 
+  const profileType = await getProfileType(req.userId!);
   const summary = await getFinancialSummary(req.userId!);
-  const score = calculateScore(summary);
-  const advisory = generateAdvisory(summary, score);
+  const isBusiness = profileType === "small_business";
+  const score = isBusiness ? calculateBusinessScore(summary) : calculateScore(summary);
+  const advisory = isBusiness ? generateBusinessAdvisory(summary, score as any) : generateAdvisory(summary, score as any);
 
   const [report] = await db.insert(reportsTable).values({
     userId: req.userId!,

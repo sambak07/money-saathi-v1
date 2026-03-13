@@ -5,6 +5,7 @@ interface User {
   name: string;
   email: string;
   hasProfile: boolean;
+  profileType: "individual" | "small_business" | null;
 }
 
 interface AuthState {

@@ -1,0 +1,173 @@
+Improve Money Saathi by standardizing all major financial input systems using structured dropdown categories with optional notes.
+
+Do not add new modules.
+Focus on strengthening the data structure and usability of existing modules.
+
+1. Income module
+Add standardized dropdown options for individual income:
+- Salary
+- Bonus / Allowance
+- Business Income
+- Freelance / Side Income
+- Rental Income
+- Pension
+- Remittance Received
+- Farming Income
+- Livestock / Agriculture Income
+- Investment Income
+- Interest Income
+- Other Income
+
+Each income entry should include:
+- category
+- amount
+- frequency
+- date
+- source name
+- optional note
+
+2. Expense module
+Add standardized dropdown options for individual expenses:
+- Groceries / Food
+- Rent / Housing
+- Utilities
+- Mobile / Internet
+- Transport / Fuel
+- Education
+- Healthcare / Medical
+- Loan EMI
+- Insurance Premium
+- Family Support
+- Domestic Help
+- Personal Care
+- Clothing
+- Festival / Religious / Social Events
+- Travel
+- Entertainment
+- Savings Transfer
+- Investment Contribution
+- Emergency Expense
+- Miscellaneous
+
+Each expense entry should include:
+- category
+- amount
+- frequency
+- date
+- payment mode
+- optional note
+
+3. Long-Term Obligations module
+Add standardized dropdown options:
+- Housing Loan
+- Vehicle Loan
+- Education Loan
+- Personal Loan
+- Business Loan
+- Loan Against Deposit
+- Credit Card / Short-Term Debt
+- Insurance Commitment
+- Family Support Commitment
+- Child Education Commitment
+- Marriage Commitment
+- Medical Support Commitment
+- Tax / Statutory Obligation
+- Other Long-Term Obligation
+
+Each obligation should include:
+- category
+- institution / lender
+- outstanding amount
+- EMI / installment
+- interest rate
+- start date
+- end date
+- next due date
+- priority
+- optional note
+
+4. Long-Term Savings / Deposits / Investments module
+Add standardized dropdown options:
+- Savings Account Reserve
+- Emergency Fund
+- Fixed Deposit
+- Recurring Deposit
+- Pension / Provident Fund
+- Insurance Savings / Endowment
+- Shares / Equity
+- Bonds
+- Gold / Precious Metals
+- Land / Property Savings
+- Child Education Fund
+- Retirement Fund
+- Business Reserve Fund
+- Goal-Based Savings
+- Other Investment
+
+Each record should include:
+- category
+- institution
+- current amount
+- monthly contribution
+- expected return / interest
+- start date
+- maturity date if applicable
+- linked goal
+- optional note
+
+5. Improve Small Business mode
+Add separate structured categories for business income, expenses, obligations, and reserves.
+
+Business income options:
+- Product Sales
+- Service Income
+- Contract Income
+- Commission Income
+- Seasonal Sales
+- Rental Income
+- Other Business Income
+
+Business expense options:
+- Inventory / Stock Purchase
+- Rent / Lease
+- Salaries / Wages
+- Utilities
+- Transport / Delivery
+- Loan Repayment
+- Marketing / Promotion
+- Equipment / Maintenance
+- Tax / License / Fees
+- Supplier Payments
+- Digital / Internet / Software
+- Miscellaneous Business Expense
+
+Business obligations options:
+- Working Capital Loan
+- Equipment Loan
+- Business Expansion Loan
+- Supplier Credit
+- Rent Liability
+- Salary Liability
+- Tax Liability
+- Other Business Obligation
+
+Business savings / reserve options:
+- Cash Reserve
+- Emergency Business Fund
+- Reinvestment Fund
+- Tax Reserve
+- Inventory Reserve
+- Expansion Fund
+- Loan Buffer Fund
+- Other Business Savings
+
+6. UX requirements
+- use dropdowns first, optional notes second
+- add clean edit/delete flows
+- allow repeat monthly entries where relevant
+- keep data entry fast and simple
+- make the forms clean, calm, and premium
+- clearly separate Individual mode and Small Business mode
+- preserve the existing dashboard, score engine, calculator, and advisory system
+
+Do not expand scope beyond improving structured data entry and business mode quality.

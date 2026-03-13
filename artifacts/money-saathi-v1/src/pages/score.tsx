@@ -1,13 +1,16 @@
 import { useGetFinancialScore } from "@workspace/api-client-react";
 import { useFinanceMutations } from "@/hooks/use-finance";
+import { useAuth } from "@/hooks/use-auth";
 import { Layout } from "@/components/layout";
 import { Card, Button, Badge, cn } from "@/components/ui-elements";
-import { RefreshCw, Info } from "lucide-react";
+import { RefreshCw, Info, Building2, User } from "lucide-react";
 import { format } from "date-fns";
 
 export default function Score() {
   const { data: score, isLoading } = useGetFinancialScore();
   const { calculateScore } = useFinanceMutations();
+  const { user } = useAuth();
+  const isBusiness = user?.profileType === "small_business";
 
   if (isLoading) {
     return (
@@ -48,18 +51,35 @@ export default function Score() {
     );
   }
 
-  const components = [
-    { title: "Savings Habit", score: score.savingsScore, ratio: score.savingsRatio, desc: "Portion of income saved monthly." },
-    { title: "Debt Burden", score: score.debtScore, ratio: score.debtRatio, desc: "Income dedicated to debt repayment." },
-    { title: "Emergency Fund", score: score.emergencyScore, ratio: score.emergencyFundCoverage, desc: "Months of expenses covered by savings." },
-    { title: "Expense Management", score: score.expenseScore, ratio: score.expenseRatio, desc: "Portion of income spent on living costs." },
+  const individualComponents = [
+    { title: "Savings Habit", score: score.savingsScore, ratio: score.savingsRatio, desc: "Portion of income saved monthly.", isMonths: false },
+    { title: "Debt Burden", score: score.debtScore, ratio: score.debtRatio, desc: "Income dedicated to debt repayment.", isMonths: false },
+    { title: "Emergency Fund", score: score.emergencyScore, ratio: score.emergencyFundCoverage, desc: "Months of expenses covered by savings.", isMonths: true },
+    { title: "Expense Management", score: score.expenseScore, ratio: score.expenseRatio, desc: "Portion of income spent on living costs.", isMonths: false },
   ];
+
+  const businessComponents = [
+    { title: "Profit Margin", score: (score as any).profitScore || score.savingsScore, ratio: (score as any).profitMargin || score.savingsRatio, desc: "Net profit as % of revenue.", isMonths: false },
+    { title: "Debt-to-Revenue", score: score.debtScore, ratio: score.debtRatio, desc: "Monthly loan payments vs revenue.", isMonths: false },
+    { title: "Cash Reserve", score: (score as any).cashReserveScore || score.emergencyScore, ratio: (score as any).cashReserveMonths || score.emergencyFundCoverage, desc: "Months of operating expenses covered.", isMonths: true },
+    { title: "Revenue Stability", score: (score as any).revenueStabilityScore || score.expenseScore, ratio: (score as any).revenueStabilityRatio || score.expenseRatio, desc: "Consistency and reliability of income.", isMonths: false },
+  ];
+
+  const components = isBusiness ? businessComponents : individualComponents;
 
   return (
     <Layout>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-display font-bold text-foreground">Health Score Breakdown</h1>
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="text-3xl font-display font-bold text-foreground">
+              {isBusiness ? "Business Health Score" : "Health Score Breakdown"}
+            </h1>
+            <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase ${isBusiness ? "bg-blue-100 text-blue-700" : "bg-emerald-100 text-emerald-700"}`}>
+              {isBusiness ? <Building2 className="w-3 h-3" /> : <User className="w-3 h-3" />}
+              {isBusiness ? "Business" : "Individual"}
+            </div>
+          </div>
           <p className="text-muted-foreground mt-1">
             Last updated: {format(new Date(score.calculatedAt), 'MMM d, yyyy h:mm a')}
           </p>
@@ -78,7 +98,9 @@ export default function Score() {
             {score.category}
           </Badge>
           <p className="text-primary-foreground/80 leading-relaxed text-sm">
-            Your score is a measure of your overall financial resilience based on the data you've provided.
+            {isBusiness
+              ? "Your score measures your business's overall financial resilience based on the data you've provided."
+              : "Your score is a measure of your overall financial resilience based on the data you've provided."}
           </p>
         </Card>
 
@@ -110,7 +132,7 @@ export default function Score() {
                 </div>
                 <div className="mt-4 text-sm bg-accent/20 p-3 rounded-lg border border-border/50 flex justify-between">
                   <span className="text-muted-foreground">Raw metric:</span>
-                  <span className="font-semibold">{comp.title === "Emergency Fund" ? `${comp.ratio.toFixed(1)} months` : `${(comp.ratio * 100).toFixed(1)}%`}</span>
+                  <span className="font-semibold">{comp.isMonths ? `${comp.ratio.toFixed(1)} months` : `${(comp.ratio * 100).toFixed(1)}%`}</span>
                 </div>
               </div>
             </Card>

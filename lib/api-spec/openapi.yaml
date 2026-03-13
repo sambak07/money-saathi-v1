@@ -636,6 +636,12 @@ components:
           type: string
         hasProfile:
           type: boolean
+        profileType:
+          type: string
+          nullable: true
+          enum:
+            - individual
+            - small_business
       required:
         - id
         - email
@@ -1072,6 +1078,11 @@ components:
     DashboardData:
       type: object
       properties:
+        profileType:
+          type: string
+          enum:
+            - individual
+            - small_business
         financialScore:
           $ref: "#/components/schemas/FinancialScore"
         verdict:
@@ -1134,6 +1145,7 @@ components:
             - hasObligations
             - hasSavings
       required:
+        - profileType
         - totalIncome
         - totalExpenses
         - netSavings

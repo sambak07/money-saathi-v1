@@ -11,4 +11,5 @@ export interface AuthResponse {
   email: string;
   name: string;
   hasProfile: boolean;
+  profileType?: "individual" | "small_business" | null;
 }

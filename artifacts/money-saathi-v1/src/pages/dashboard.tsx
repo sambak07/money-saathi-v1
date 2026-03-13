@@ -2,7 +2,7 @@ import { useGetDashboard } from "@workspace/api-client-react";
 import { Link } from "wouter";
 import { Layout } from "@/components/layout";
 import { Card, Button, Badge } from "@/components/ui-elements";
-import { ArrowRight, TrendingUp, TrendingDown, Landmark, Shield, Lightbulb, AlertTriangle, CheckCircle2, CircleAlert, Plus, Wallet, Receipt, PiggyBank, Banknote, BarChart3 } from "lucide-react";
+import { ArrowRight, TrendingUp, TrendingDown, Landmark, Shield, Lightbulb, AlertTriangle, CheckCircle2, CircleAlert, Plus, Wallet, Receipt, PiggyBank, Banknote, BarChart3, Building2, User } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend } from "recharts";
 
 function formatNu(val: number) {
@@ -17,13 +17,24 @@ const VERDICT_STYLES: Record<string, { gradient: string; icon: typeof CheckCircl
   Critical:   { gradient: "from-red-600 to-red-500",         icon: AlertTriangle },
 };
 
-function VerdictLayer({ score, category, mainRisk, nextBestAction, hasData }: {
-  score: number; category: string; mainRisk: string; nextBestAction: string; hasData: boolean;
+function ModeBadge({ mode }: { mode: "individual" | "small_business" }) {
+  const isBusiness = mode === "small_business";
+  return (
+    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase ${isBusiness ? "bg-blue-100 text-blue-700" : "bg-emerald-100 text-emerald-700"}`}>
+      {isBusiness ? <Building2 className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
+      {isBusiness ? "Business Mode" : "Individual Mode"}
+    </div>
+  );
+}
+
+function VerdictLayer({ score, category, mainRisk, nextBestAction, hasData, mode }: {
+  score: number; category: string; mainRisk: string; nextBestAction: string; hasData: boolean; mode: "individual" | "small_business";
 }) {
   const style = VERDICT_STYLES[category] || VERDICT_STYLES.Moderate;
   const VerdictIcon = style.icon;
   const circumference = 2 * Math.PI * 42;
   const offset = circumference - (score / 100) * circumference;
+  const isBusiness = mode === "small_business";
 
   return (
     <Card className={`p-0 overflow-hidden border-none bg-gradient-to-br ${style.gradient} text-white shadow-xl`}>
@@ -66,7 +77,7 @@ function VerdictLayer({ score, category, mainRisk, nextBestAction, hasData }: {
           {!hasData && (
             <Link href="/data-entry">
               <Button className="bg-white/20 hover:bg-white/30 text-white border-none mt-2 gap-2">
-                <Plus className="w-4 h-4" /> Enter Financial Data
+                <Plus className="w-4 h-4" /> {isBusiness ? "Enter Business Data" : "Enter Financial Data"}
               </Button>
             </Link>
           )}
@@ -76,25 +87,37 @@ function VerdictLayer({ score, category, mainRisk, nextBestAction, hasData }: {
   );
 }
 
-function EmptyDataNotice() {
+function EmptyDataNotice({ isBusiness }: { isBusiness: boolean }) {
+  const steps = isBusiness
+    ? [
+        { step: "1", label: "Revenue", desc: "Sales, services, etc." },
+        { step: "2", label: "Operating Expenses", desc: "Rent, payroll, supplies" },
+        { step: "3", label: "Business Loans", desc: "Loan EMIs, credit lines" },
+        { step: "4", label: "Cash Balance", desc: "Bank balance, reserves" },
+      ]
+    : [
+        { step: "1", label: "Income", desc: "Salary, freelance, etc." },
+        { step: "2", label: "Expenses", desc: "Rent, food, utilities" },
+        { step: "3", label: "Personal Loans", desc: "Loan EMIs, debts" },
+        { step: "4", label: "Savings", desc: "Bank, emergency fund" },
+      ];
+
   return (
     <Card className="p-8 border-dashed border-2 bg-transparent">
       <div className="flex flex-col items-center text-center max-w-lg mx-auto">
         <div className="p-4 bg-primary/10 rounded-2xl mb-4">
-          <Wallet className="w-8 h-8 text-primary" />
+          {isBusiness ? <Building2 className="w-8 h-8 text-primary" /> : <Wallet className="w-8 h-8 text-primary" />}
         </div>
-        <h3 className="text-lg font-bold mb-2">Add your financial data to unlock insights</h3>
+        <h3 className="text-lg font-bold mb-2">
+          {isBusiness ? "Add your business data to unlock insights" : "Add your financial data to unlock insights"}
+        </h3>
         <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
-          Start by entering your monthly income, then add expenses, obligations, and savings.
-          Your dashboard will come alive with personalised scores, charts, and recommendations.
+          {isBusiness
+            ? "Start by entering your monthly revenue, then add operating expenses, loans, and cash reserves. Your dashboard will come alive with business health scores, charts, and recommendations."
+            : "Start by entering your monthly income, then add expenses, obligations, and savings. Your dashboard will come alive with personalised scores, charts, and recommendations."}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 w-full mb-6">
-          {[
-            { step: "1", label: "Income", desc: "Salary, freelance, etc." },
-            { step: "2", label: "Expenses", desc: "Rent, food, utilities" },
-            { step: "3", label: "Obligations", desc: "Loan EMIs, debts" },
-            { step: "4", label: "Savings", desc: "Bank, emergency fund" },
-          ].map(s => (
+          {steps.map(s => (
             <div key={s.step} className="bg-muted/30 rounded-xl p-3 text-left">
               <span className="text-xs font-bold text-primary">Step {s.step}</span>
               <p className="font-semibold text-sm mt-0.5">{s.label}</p>
@@ -150,6 +173,146 @@ function RatioBar({ value, max, thresholds, label, unit }: {
   );
 }
 
+function IndividualMetrics({ data, dp }: { data: any; dp: any }) {
+  const fs = data.financialScore || {} as any;
+  const debtRatio = Math.round((fs.debtRatio || 0) * 100);
+  const emergencyMonths = Math.round((fs.emergencyFundCoverage || 0) * 10) / 10;
+  const netSavings = data.netSavings || 0;
+  const savingsPositive = netSavings >= 0;
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <Card className="p-5">
+        <div className="flex items-center gap-3 mb-1">
+          <div className={`p-2 rounded-lg shrink-0 ${savingsPositive ? "bg-emerald-500/10" : "bg-red-500/10"}`}>
+            {savingsPositive ? <TrendingUp className="w-4 h-4 text-emerald-600" /> : <TrendingDown className="w-4 h-4 text-red-600" />}
+          </div>
+          <p className="text-sm text-muted-foreground font-medium">Net Savings</p>
+        </div>
+        <p className={`text-2xl font-bold mt-2 ${savingsPositive ? "text-emerald-600" : "text-red-600"}`}>
+          {savingsPositive ? "" : "−"}{formatNu(Math.abs(netSavings))}
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Income {formatNu(data.totalIncome)} − Expenses {formatNu(data.totalExpenses)}
+        </p>
+        {!dp.hasIncome && (
+          <MissingDataHint icon={Banknote} iconBg="bg-emerald-500/10 text-emerald-600" title="No income entered" message="Add your salary or other income sources to see accurate net savings." />
+        )}
+        {dp.hasIncome && !dp.hasExpenses && (
+          <MissingDataHint icon={Receipt} iconBg="bg-red-500/10 text-red-600" title="No expenses entered" message="Add rent, food, utilities, etc. to get a realistic savings picture." />
+        )}
+      </Card>
+
+      <Card className="p-5">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2 bg-amber-500/10 rounded-lg shrink-0"><Landmark className="w-4 h-4 text-amber-600" /></div>
+          <p className="text-sm text-muted-foreground font-medium">Debt Ratio</p>
+        </div>
+        {dp.hasObligations || dp.hasIncome ? (
+          <>
+            <RatioBar value={debtRatio} max={100} thresholds={{ good: 30, warn: 50 }} label={`${formatNu(data.totalObligations)} / mo`} unit="%" />
+            <p className="text-xs text-muted-foreground mt-2">
+              {!dp.hasObligations ? "No loan obligations recorded. Add any EMIs or debt payments for an accurate ratio." : debtRatio <= 30 ? "Healthy — well within safe limits." : debtRatio <= 50 ? "Elevated — consider reducing debt." : "High — debt is straining your income."}
+            </p>
+          </>
+        ) : (
+          <MissingDataHint icon={Landmark} iconBg="bg-amber-500/10 text-amber-600" title="No obligations entered" message="Add loan EMIs, credit card debt, or other monthly payments. If you have none, your debt ratio is 0% — great!" />
+        )}
+      </Card>
+
+      <Card className="p-5">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2 bg-blue-500/10 rounded-lg shrink-0"><Shield className="w-4 h-4 text-blue-600" /></div>
+          <p className="text-sm text-muted-foreground font-medium">Emergency Fund</p>
+        </div>
+        {dp.hasSavings ? (
+          <>
+            <RatioBar value={emergencyMonths} max={12} thresholds={{ good: 6, warn: 3 }} label={`${emergencyMonths} months`} unit=" mo" />
+            <p className="text-xs text-muted-foreground mt-2">
+              {emergencyMonths >= 6 ? "Strong — covers 6+ months of expenses." : emergencyMonths >= 3 ? "Building up — aim for 6 months." : "Low — prioritise building this fund."}
+            </p>
+          </>
+        ) : (
+          <MissingDataHint icon={PiggyBank} iconBg="bg-blue-500/10 text-blue-600" title="No savings recorded" message="Add your savings accounts and emergency fund balance. This measures how many months of expenses you can cover." />
+        )}
+      </Card>
+    </div>
+  );
+}
+
+function BusinessMetrics({ data, dp }: { data: any; dp: any }) {
+  const fs = data.financialScore || {} as any;
+  const profitMarginPct = Math.round((fs.profitMargin || 0) * 100);
+  const debtRatio = Math.round((fs.debtRatio || 0) * 100);
+  const cashReserveMonths = Math.round((fs.cashReserveMonths || 0) * 10) / 10;
+  const netProfit = data.netSavings || 0;
+  const profitable = netProfit >= 0;
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <Card className="p-5">
+        <div className="flex items-center gap-3 mb-1">
+          <div className={`p-2 rounded-lg shrink-0 ${profitable ? "bg-emerald-500/10" : "bg-red-500/10"}`}>
+            {profitable ? <TrendingUp className="w-4 h-4 text-emerald-600" /> : <TrendingDown className="w-4 h-4 text-red-600" />}
+          </div>
+          <p className="text-sm text-muted-foreground font-medium">Net Profit</p>
+        </div>
+        <p className={`text-2xl font-bold mt-2 ${profitable ? "text-emerald-600" : "text-red-600"}`}>
+          {profitable ? "" : "−"}{formatNu(Math.abs(netProfit))}
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Revenue {formatNu(data.totalIncome)} − OpEx {formatNu(data.totalExpenses)}
+        </p>
+        {!dp.hasIncome && (
+          <MissingDataHint icon={Banknote} iconBg="bg-emerald-500/10 text-emerald-600" title="No revenue entered" message="Add your monthly sales or service revenue to calculate net profit." />
+        )}
+        {dp.hasIncome && !dp.hasExpenses && (
+          <MissingDataHint icon={Receipt} iconBg="bg-red-500/10 text-red-600" title="No operating expenses entered" message="Add rent, payroll, supplies, etc. to see true profitability." />
+        )}
+        {dp.hasIncome && dp.hasExpenses && (
+          <div className="mt-2 text-xs text-muted-foreground">
+            Profit margin: <span className={`font-bold ${profitMarginPct >= 20 ? "text-emerald-600" : profitMarginPct >= 10 ? "text-amber-600" : "text-red-600"}`}>{profitMarginPct}%</span>
+          </div>
+        )}
+      </Card>
+
+      <Card className="p-5">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2 bg-amber-500/10 rounded-lg shrink-0"><Landmark className="w-4 h-4 text-amber-600" /></div>
+          <p className="text-sm text-muted-foreground font-medium">Debt-to-Revenue</p>
+        </div>
+        {dp.hasObligations || dp.hasIncome ? (
+          <>
+            <RatioBar value={debtRatio} max={100} thresholds={{ good: 30, warn: 50 }} label={`${formatNu(data.totalObligations)} / mo`} unit="%" />
+            <p className="text-xs text-muted-foreground mt-2">
+              {!dp.hasObligations ? "No business loans recorded. Add any loan EMIs for an accurate ratio." : debtRatio <= 30 ? "Healthy — business debt is manageable." : debtRatio <= 50 ? "Elevated — consider reducing business debt." : "High — debt is straining revenue."}
+            </p>
+          </>
+        ) : (
+          <MissingDataHint icon={Landmark} iconBg="bg-amber-500/10 text-amber-600" title="No business loans entered" message="Add loan EMIs, credit lines, or other business debt payments." />
+        )}
+      </Card>
+
+      <Card className="p-5">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2 bg-blue-500/10 rounded-lg shrink-0"><Shield className="w-4 h-4 text-blue-600" /></div>
+          <p className="text-sm text-muted-foreground font-medium">Cash Reserve</p>
+        </div>
+        {dp.hasSavings ? (
+          <>
+            <RatioBar value={cashReserveMonths} max={6} thresholds={{ good: 3, warn: 1 }} label={`${cashReserveMonths} months`} unit=" mo" />
+            <p className="text-xs text-muted-foreground mt-2">
+              {cashReserveMonths >= 3 ? "Strong — covers 3+ months of operating expenses." : cashReserveMonths >= 1 ? "Building up — aim for 3 months." : "Low — prioritise building an operating reserve."}
+            </p>
+          </>
+        ) : (
+          <MissingDataHint icon={PiggyBank} iconBg="bg-blue-500/10 text-blue-600" title="No cash balance recorded" message="Add your business bank balances and reserves. This measures how many months of operating expenses you can cover." />
+        )}
+      </Card>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { data, isLoading } = useGetDashboard();
 
@@ -166,30 +329,36 @@ export default function Dashboard() {
   const fs = data.financialScore || {} as any;
   const score = fs.totalScore || 0;
   const scoreCategory = fs.category || "Moderate";
-  const debtRatio = Math.round((fs.debtRatio || 0) * 100);
-  const emergencyMonths = Math.round((fs.emergencyFundCoverage || 0) * 10) / 10;
-  const netSavings = data.netSavings || 0;
-  const savingsPositive = netSavings >= 0;
-
   const verdict = data.verdict || { category: scoreCategory, mainRisk: "Unknown", nextBestAction: "Add financial data", hasData: false };
   const hasData = verdict.hasData;
-
   const dp = data.dataPresence || { hasIncome: false, hasExpenses: false, hasObligations: false, hasSavings: false };
+  const profileType = data.profileType || "individual";
+  const isBusiness = profileType === "small_business";
 
   const chartData = (data.incomeVsExpenses || []).map((item: any) => ({ ...item }));
   const hasChartData = chartData.some((d: any) => d.income > 0 || d.expenses > 0);
+
+  const incomeLabel = isBusiness ? "Revenue" : "Income";
+  const expenseLabel = isBusiness ? "Operating Expenses" : "Expenses";
 
   return (
     <Layout>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-display font-bold text-foreground">Financial Health Dashboard</h1>
-            <p className="text-muted-foreground mt-1">Your complete financial snapshot.</p>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-3xl font-display font-bold text-foreground">
+                {isBusiness ? "Business Health Dashboard" : "Financial Health Dashboard"}
+              </h1>
+              <ModeBadge mode={profileType} />
+            </div>
+            <p className="text-muted-foreground">
+              {isBusiness ? "Your complete business financial snapshot." : "Your complete financial snapshot."}
+            </p>
           </div>
           <Link href="/data-entry">
             <Button className="shrink-0 gap-2">
-              Add Transaction <ArrowRight className="w-4 h-4" />
+              {isBusiness ? "Add Business Data" : "Add Transaction"} <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
         </div>
@@ -200,100 +369,18 @@ export default function Dashboard() {
           mainRisk={verdict.mainRisk}
           nextBestAction={verdict.nextBestAction}
           hasData={hasData}
+          mode={profileType}
         />
 
         {!hasData ? (
-          <EmptyDataNotice />
+          <EmptyDataNotice isBusiness={isBusiness} />
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Card className="p-5">
-                <div className="flex items-center gap-3 mb-1">
-                  <div className={`p-2 rounded-lg shrink-0 ${savingsPositive ? "bg-emerald-500/10" : "bg-red-500/10"}`}>
-                    {savingsPositive ? <TrendingUp className="w-4 h-4 text-emerald-600" /> : <TrendingDown className="w-4 h-4 text-red-600" />}
-                  </div>
-                  <p className="text-sm text-muted-foreground font-medium">Net Savings</p>
-                </div>
-                <p className={`text-2xl font-bold mt-2 ${savingsPositive ? "text-emerald-600" : "text-red-600"}`}>
-                  {savingsPositive ? "" : "−"}{formatNu(Math.abs(netSavings))}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Income {formatNu(data.totalIncome)} − Expenses {formatNu(data.totalExpenses)}
-                </p>
-                {!dp.hasIncome && (
-                  <MissingDataHint
-                    icon={Banknote} iconBg="bg-emerald-500/10 text-emerald-600"
-                    title="No income entered"
-                    message="Add your salary or other income sources to see accurate net savings."
-                  />
-                )}
-                {dp.hasIncome && !dp.hasExpenses && (
-                  <MissingDataHint
-                    icon={Receipt} iconBg="bg-red-500/10 text-red-600"
-                    title="No expenses entered"
-                    message="Add rent, food, utilities, etc. to get a realistic savings picture."
-                  />
-                )}
-              </Card>
-
-              <Card className="p-5">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-amber-500/10 rounded-lg shrink-0"><Landmark className="w-4 h-4 text-amber-600" /></div>
-                  <p className="text-sm text-muted-foreground font-medium">Debt Ratio</p>
-                </div>
-                {dp.hasObligations || dp.hasIncome ? (
-                  <>
-                    <RatioBar
-                      value={debtRatio} max={100}
-                      thresholds={{ good: 30, warn: 50 }}
-                      label={`${formatNu(data.totalObligations)} / mo`} unit="%"
-                    />
-                    <p className="text-xs text-muted-foreground mt-2">
-                      {!dp.hasObligations
-                        ? "No loan obligations recorded. Add any EMIs or debt payments for an accurate ratio."
-                        : debtRatio <= 30 ? "Healthy — well within safe limits."
-                        : debtRatio <= 50 ? "Elevated — consider reducing debt."
-                        : "High — debt is straining your income."}
-                    </p>
-                  </>
-                ) : (
-                  <MissingDataHint
-                    icon={Landmark} iconBg="bg-amber-500/10 text-amber-600"
-                    title="No obligations entered"
-                    message="Add loan EMIs, credit card debt, or other monthly payments. If you have none, your debt ratio is 0% — great!"
-                  />
-                )}
-              </Card>
-
-              <Card className="p-5">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-blue-500/10 rounded-lg shrink-0"><Shield className="w-4 h-4 text-blue-600" /></div>
-                  <p className="text-sm text-muted-foreground font-medium">Emergency Fund</p>
-                </div>
-                {dp.hasSavings ? (
-                  <>
-                    <RatioBar
-                      value={emergencyMonths} max={12}
-                      thresholds={{ good: 6, warn: 3 }}
-                      label={`${emergencyMonths} months`} unit=" mo"
-                    />
-                    <p className="text-xs text-muted-foreground mt-2">
-                      {emergencyMonths >= 6 ? "Strong — covers 6+ months of expenses." : emergencyMonths >= 3 ? "Building up — aim for 6 months." : "Low — prioritise building this fund."}
-                    </p>
-                  </>
-                ) : (
-                  <MissingDataHint
-                    icon={PiggyBank} iconBg="bg-blue-500/10 text-blue-600"
-                    title="No savings recorded"
-                    message="Add your savings accounts and emergency fund balance. This measures how many months of expenses you can cover."
-                  />
-                )}
-              </Card>
-            </div>
+            {isBusiness ? <BusinessMetrics data={data} dp={dp} /> : <IndividualMetrics data={data} dp={dp} />}
 
             {hasChartData ? (
               <Card className="p-6">
-                <h2 className="text-lg font-bold mb-1">Income vs Expenses</h2>
+                <h2 className="text-lg font-bold mb-1">{incomeLabel} vs {expenseLabel}</h2>
                 <p className="text-sm text-muted-foreground mb-4">6-month trend</p>
                 <div className="h-[260px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -307,12 +394,12 @@ export default function Dashboard() {
                         formatter={(value: number, name: string) => [formatNu(value), name]}
                       />
                       <Legend iconType="circle" wrapperStyle={{ paddingTop: '16px' }} />
-                      <Bar dataKey="income" name="Income" radius={[4, 4, 0, 0]} maxBarSize={36}>
+                      <Bar dataKey="income" name={incomeLabel} radius={[4, 4, 0, 0]} maxBarSize={36}>
                         {chartData.map((_: any, i: number) => (
                           <Cell key={i} fill="hsl(var(--primary))" />
                         ))}
                       </Bar>
-                      <Bar dataKey="expenses" name="Expenses" radius={[4, 4, 0, 0]} maxBarSize={36}>
+                      <Bar dataKey="expenses" name={expenseLabel} radius={[4, 4, 0, 0]} maxBarSize={36}>
                         {chartData.map((_: any, i: number) => (
                           <Cell key={i} fill="hsl(var(--secondary))" />
                         ))}
@@ -327,15 +414,15 @@ export default function Dashboard() {
                   <BarChart3 className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm mb-0.5">Income vs Expenses chart</h3>
+                  <h3 className="font-semibold text-sm mb-0.5">{incomeLabel} vs {expenseLabel} chart</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     {!dp.hasIncome
-                      ? "Add your income to see this chart. Go to Financial Data and enter your salary or other income sources."
-                      : "Add your monthly expenses to compare against income. The chart will show your spending patterns."}
+                      ? `Add your ${incomeLabel.toLowerCase()} to see this chart.`
+                      : `Add your ${expenseLabel.toLowerCase()} to compare against ${incomeLabel.toLowerCase()}.`}
                   </p>
                   <Link href="/data-entry" className="inline-block mt-2">
                     <Button variant="outline" size="sm" className="gap-1.5">
-                      <Plus className="w-3.5 h-3.5" /> {!dp.hasIncome ? "Add Income" : "Add Expenses"}
+                      <Plus className="w-3.5 h-3.5" /> {!dp.hasIncome ? `Add ${incomeLabel}` : `Add ${expenseLabel}`}
                     </Button>
                   </Link>
                 </div>
@@ -350,7 +437,9 @@ export default function Dashboard() {
                       <Lightbulb className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <p className="text-primary-foreground/70 text-xs font-semibold tracking-wider uppercase mb-1">Detailed Recommendation</p>
+                      <p className="text-primary-foreground/70 text-xs font-semibold tracking-wider uppercase mb-1">
+                        {isBusiness ? "Business Recommendation" : "Detailed Recommendation"}
+                      </p>
                       <h3 className="font-display font-bold text-xl text-white mb-1">{data.topRecommendation.title}</h3>
                       <p className="text-primary-foreground/80 text-sm leading-relaxed max-w-2xl">
                         {data.topRecommendation.description}
