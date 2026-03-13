@@ -58,4 +58,31 @@ router.post("/profiles", requireAuth, async (req, res): Promise<void> => {
   });
 });
 
+router.patch("/profiles/mode", requireAuth, async (req, res): Promise<void> => {
+  const { mode } = req.body;
+  if (mode !== "individual" && mode !== "small_business") {
+    res.status(400).json({ message: "mode must be 'individual' or 'small_business'" });
+    return;
+  }
+
+  const [existing] = await db.select().from(userProfilesTable).where(eq(userProfilesTable.userId, req.userId!));
+
+  if (!existing) {
+    const [profile] = await db
+      .insert(userProfilesTable)
+      .values({ userId: req.userId!, profileType: mode, currency: "BTN" })
+      .returning();
+    res.json({ profileType: profile.profileType, hasProfile: true });
+    return;
+  }
+
+  const [profile] = await db
+    .update(userProfilesTable)
+    .set({ profileType: mode })
+    .where(eq(userProfilesTable.userId, req.userId!))
+    .returning();
+
+  res.json({ profileType: profile.profileType, hasProfile: true });
+});
+
 export default router;

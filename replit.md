@@ -64,7 +64,8 @@ users, profiles, income_entries, expense_entries, obligations, savings_entries, 
 - `getProfileType(userId)` in `financialEngine.ts` detects mode
 - Dashboard, Scores, Reports routes all detect profile type and use correct engine
 - Business score maps to DB columns: savingsRatio→profitMargin, emergencyFundCoverage→cashReserveMonths, expenseRatio→revenueStabilityRatio
-- Frontend dashboard: `ModeBadge`, `IndividualMetrics`/`BusinessMetrics` components
+- **Mode Switcher**: `ModeSwitcher` pill component on dashboard replaces `ModeBadge`; users can toggle between Personal and Business mode at any time via `PATCH /api/profiles/mode`; `switchMode()` in `useAuth` updates both `profileType` and `hasProfile` in context; `qc.invalidateQueries()` refetches all data after switch
+- Frontend dashboard: `ModeSwitcher`, `IndividualMetrics`/`BusinessMetrics` components
 - Data entry: `useLabels()` hook relabels tabs per mode; structured dropdown categories defined in `src/lib/categories.ts`
 - Score page: different breakdown labels per mode
 - Business obligation types use valid backend enums (loan/mortgage/credit_card/other) with relabeled UI text

@@ -23,12 +23,15 @@ const AuthContext = createContext<{
   isRegistering: boolean;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  switchMode: (mode: "individual" | "small_business") => Promise<void>;
+  isSwitchingMode: boolean;
 } | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>({ user: null, isLoading: true });
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
+  const [isSwitchingMode, setIsSwitchingMode] = useState(false);
 
   const fetchUser = useCallback(async () => {
     try {
@@ -94,6 +97,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.location.href = import.meta.env.BASE_URL + "login";
   }, []);
 
+  const switchMode = useCallback(async (mode: "individual" | "small_business") => {
+    setIsSwitchingMode(true);
+    try {
+      const res = await fetch("/api/profiles/mode", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode }),
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || "Failed to switch mode");
+      }
+      setState(prev => ({
+        ...prev,
+        user: prev.user ? { ...prev.user, profileType: mode, hasProfile: true } : null,
+      }));
+    } finally {
+      setIsSwitchingMode(false);
+    }
+  }, []);
+
   return (
     <AuthContext.Provider value={{
       user: state.user,
@@ -104,6 +129,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isRegistering,
       logout,
       refreshUser: fetchUser,
+      switchMode,
+      isSwitchingMode,
     }}>
       {children}
     </AuthContext.Provider>

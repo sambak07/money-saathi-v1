@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useGetDashboard } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Layout } from "@/components/layout";
 import { Card, Button, Badge, InfoTooltip } from "@/components/ui-elements";
-import { ArrowRight, TrendingUp, TrendingDown, Landmark, Shield, Lightbulb, AlertTriangle, CheckCircle2, CircleAlert, Plus, Wallet, Receipt, PiggyBank, Banknote, BarChart3, Building2, User } from "lucide-react";
+import { ArrowRight, TrendingUp, TrendingDown, Landmark, Shield, Lightbulb, AlertTriangle, CheckCircle2, CircleAlert, Plus, Wallet, Receipt, PiggyBank, Banknote, BarChart3, Building2, User, RefreshCw } from "lucide-react";
 import { InsightsPanel } from "@/components/insights-panel";
 import { BestNextOptions } from "@/components/best-next-options";
 import { FinancialProgress } from "@/components/financial-progress";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend } from "recharts";
+import { useAuth } from "@/hooks/use-auth";
 
 function formatNu(val: number) {
   return `Nu. ${val.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
@@ -21,12 +23,38 @@ const VERDICT_STYLES: Record<string, { gradient: string; icon: typeof CheckCircl
   Critical:   { gradient: "from-red-600 to-red-500",         icon: AlertTriangle },
 };
 
-function ModeBadge({ mode }: { mode: "individual" | "small_business" }) {
-  const isBusiness = mode === "small_business";
+function ModeSwitcher({ mode, onSwitch, isSwitching }: {
+  mode: "individual" | "small_business";
+  onSwitch: (mode: "individual" | "small_business") => void;
+  isSwitching: boolean;
+}) {
   return (
-    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase ${isBusiness ? "bg-blue-100 text-blue-700" : "bg-emerald-100 text-emerald-700"}`}>
-      {isBusiness ? <Building2 className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
-      {isBusiness ? "Business Mode" : "Individual Mode"}
+    <div className="inline-flex items-center bg-muted/50 rounded-xl p-1 border border-border/50">
+      <button
+        onClick={() => onSwitch("individual")}
+        disabled={isSwitching}
+        className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+          mode === "individual"
+            ? "bg-white text-emerald-700 shadow-sm"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        <User className="w-3.5 h-3.5" />
+        Personal Mode
+      </button>
+      <button
+        onClick={() => onSwitch("small_business")}
+        disabled={isSwitching}
+        className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+          mode === "small_business"
+            ? "bg-white text-blue-700 shadow-sm"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        <Building2 className="w-3.5 h-3.5" />
+        Business Mode
+      </button>
+      {isSwitching && <RefreshCw className="w-4 h-4 ml-2 text-muted-foreground animate-spin" />}
     </div>
   );
 }
@@ -325,6 +353,14 @@ function BusinessMetrics({ data, dp }: { data: any; dp: any }) {
 
 export default function Dashboard() {
   const { data, isLoading } = useGetDashboard();
+  const { user, switchMode, isSwitchingMode } = useAuth();
+  const qc = useQueryClient();
+
+  const handleModeSwitch = async (mode: "individual" | "small_business") => {
+    if (mode === (user?.profileType || "individual")) return;
+    await switchMode(mode);
+    qc.invalidateQueries();
+  };
 
   if (isLoading || !data) {
     return (
@@ -342,7 +378,7 @@ export default function Dashboard() {
   const verdict = data.verdict || { category: scoreCategory, mainRisk: "Unknown", nextBestAction: "Add financial data", hasData: false };
   const hasData = verdict.hasData;
   const dp = data.dataPresence || { hasIncome: false, hasExpenses: false, hasObligations: false, hasSavings: false };
-  const profileType = data.profileType || "individual";
+  const profileType = (user?.profileType as "individual" | "small_business") || data.profileType || "individual";
   const isBusiness = profileType === "small_business";
 
   const chartData = (data.incomeVsExpenses || []).map((item: any) => ({ ...item }));
@@ -354,23 +390,23 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
               <h1 className="text-3xl font-display font-bold text-foreground">
                 {isBusiness ? "Business Health Dashboard" : "Financial Health Dashboard"}
               </h1>
-              <ModeBadge mode={profileType} />
+              <p className="text-muted-foreground mt-1">
+                {isBusiness ? "Your complete business financial snapshot." : "Your complete financial snapshot."}
+              </p>
             </div>
-            <p className="text-muted-foreground">
-              {isBusiness ? "Your complete business financial snapshot." : "Your complete financial snapshot."}
-            </p>
+            <Link href="/data-entry">
+              <Button className="shrink-0 gap-2">
+                {isBusiness ? "Add Business Data" : "Add Transaction"} <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
           </div>
-          <Link href="/data-entry">
-            <Button className="shrink-0 gap-2">
-              {isBusiness ? "Add Business Data" : "Add Transaction"} <ArrowRight className="w-4 h-4" />
-            </Button>
-          </Link>
+          <ModeSwitcher mode={profileType} onSwitch={handleModeSwitch} isSwitching={isSwitchingMode} />
         </div>
 
         <VerdictLayer
