@@ -16,7 +16,8 @@ import {
   Bot,
   Globe,
   Database,
-  Shield
+  Shield,
+  Lock
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "./ui-elements";
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
   { href: "/loans", label: "Loan Calculator", icon: Calculator },
   { href: "/advisory", label: "Advisory", icon: Lightbulb },
   { href: "/reports", label: "Reports", icon: FileText },
+  { href: "/vault", label: "Financial Vault", icon: Lock },
 ];
 
 const INTELLIGENCE_ITEMS = [

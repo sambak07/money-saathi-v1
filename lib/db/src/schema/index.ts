@@ -9,3 +9,4 @@ export * from "./loanCalculations";
 export * from "./reports";
 export * from "./financialSnapshots";
 export * from "./financialProducts";
+export * from "./vault";
