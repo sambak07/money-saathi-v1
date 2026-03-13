@@ -115,16 +115,16 @@ Go to [supabase.com](https://supabase.com) and create a new project.
 
 In your Supabase dashboard: **Settings → Database → Connection string → URI**
 
-Use the **Transaction pooler** connection string (port 6543) for the application:
+Use the **Direct connection** string (port 5432) for the application:
 
 ```
-postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
+postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres
 ```
 
 ### 3. Configure environment
 
 ```env
-DATABASE_URL=postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
+DATABASE_URL=postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres
 SESSION_SECRET=your-random-secret
 ```
 
