@@ -1,0 +1,24 @@
+packages:
+  "recharts": "Required for financial dashboard charts and visualizations"
+  "framer-motion": "Required for smooth page transitions and micro-interactions"
+  "lucide-react": "Required for premium iconography across the application"
+  "date-fns": "Required for clean date formatting in reports and data entry"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility for merging tailwind classes without style conflicts"
+
+images:
+  - path: "artifacts/money-saathi-v1/public/images/auth-bg.png"
+    description: "Abstract soft gradient mesh in warm earthy tones, deep forest green, terracotta and sage green, calm natural premium fintech feel"
+    aspect_ratio: "16:9"
+  - path: "artifacts/money-saathi-v1/public/images/logo.png"
+    description: "Minimal geometric logo mark in deep forest green and earthy gold on transparent background, modern fintech"
+    aspect_ratio: "1:1"
+  - path: "artifacts/money-saathi-v1/public/images/bhutan-pattern.png"
+    description: "Subtle traditional Bhutanese endless knot pattern in very light sage green on transparent background, extremely low opacity, elegant"
+    aspect_ratio: "16:9"
+
+notes:
+  - API is available at /api via @workspace/api-client-react hooks
+  - Using Replit's built-in PostgreSQL database
+  - Auth is handled via httpOnly cookies
+  - Zod schemas are used for backend validation, frontend relies on generated types

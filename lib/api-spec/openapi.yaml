@@ -1,22 +1,40 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Money Saathi API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: profiles
+    description: User profiles
+  - name: income
+    description: Income entries
+  - name: expenses
+    description: Expense entries
+  - name: obligations
+    description: Obligations
+  - name: savings
+    description: Savings entries
+  - name: scores
+    description: Financial health scores
+  - name: loans
+    description: Loan calculations
+  - name: advisory
+    description: Advisory engine
+  - name: reports
+    description: Monthly reports
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +42,535 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /profiles:
+    get:
+      operationId: getProfile
+      tags: [profiles]
+      summary: Get user profile
+      responses:
+        "200":
+          description: Profile data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "404":
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: createProfile
+      tags: [profiles]
+      summary: Create or update user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProfileRequest"
+      responses:
+        "200":
+          description: Profile saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+
+  /income:
+    get:
+      operationId: getIncomeEntries
+      tags: [income]
+      summary: List income entries
+      responses:
+        "200":
+          description: Income entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IncomeEntry"
+    post:
+      operationId: createIncomeEntry
+      tags: [income]
+      summary: Add income entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateIncomeEntry"
+      responses:
+        "201":
+          description: Income entry created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IncomeEntry"
+
+  /income/{id}:
+    put:
+      operationId: updateIncomeEntry
+      tags: [income]
+      summary: Update income entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateIncomeEntry"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IncomeEntry"
+    delete:
+      operationId: deleteIncomeEntry
+      tags: [income]
+      summary: Delete income entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /expenses:
+    get:
+      operationId: getExpenseEntries
+      tags: [expenses]
+      summary: List expense entries
+      responses:
+        "200":
+          description: Expense entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ExpenseEntry"
+    post:
+      operationId: createExpenseEntry
+      tags: [expenses]
+      summary: Add expense entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateExpenseEntry"
+      responses:
+        "201":
+          description: Expense entry created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExpenseEntry"
+
+  /expenses/{id}:
+    put:
+      operationId: updateExpenseEntry
+      tags: [expenses]
+      summary: Update expense entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateExpenseEntry"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExpenseEntry"
+    delete:
+      operationId: deleteExpenseEntry
+      tags: [expenses]
+      summary: Delete expense entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /obligations:
+    get:
+      operationId: getObligations
+      tags: [obligations]
+      summary: List obligations
+      responses:
+        "200":
+          description: Obligations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Obligation"
+    post:
+      operationId: createObligation
+      tags: [obligations]
+      summary: Add obligation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateObligation"
+      responses:
+        "201":
+          description: Obligation created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Obligation"
+
+  /obligations/{id}:
+    put:
+      operationId: updateObligation
+      tags: [obligations]
+      summary: Update obligation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateObligation"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Obligation"
+    delete:
+      operationId: deleteObligation
+      tags: [obligations]
+      summary: Delete obligation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /savings:
+    get:
+      operationId: getSavingsEntries
+      tags: [savings]
+      summary: List savings entries
+      responses:
+        "200":
+          description: Savings entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SavingsEntry"
+    post:
+      operationId: createSavingsEntry
+      tags: [savings]
+      summary: Add savings entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSavingsEntry"
+      responses:
+        "201":
+          description: Savings entry created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavingsEntry"
+
+  /savings/{id}:
+    put:
+      operationId: updateSavingsEntry
+      tags: [savings]
+      summary: Update savings entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSavingsEntry"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavingsEntry"
+    delete:
+      operationId: deleteSavingsEntry
+      tags: [savings]
+      summary: Delete savings entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /scores:
+    get:
+      operationId: getFinancialScore
+      tags: [scores]
+      summary: Get latest financial health score
+      responses:
+        "200":
+          description: Financial score
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinancialScore"
+
+  /scores/calculate:
+    post:
+      operationId: calculateFinancialScore
+      tags: [scores]
+      summary: Recalculate financial health score
+      responses:
+        "200":
+          description: Score calculated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinancialScore"
+
+  /loans/calculate:
+    post:
+      operationId: calculateLoan
+      tags: [loans]
+      summary: Calculate loan EMI and affordability
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoanCalculationRequest"
+      responses:
+        "200":
+          description: Loan calculation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoanCalculationResult"
+
+  /loans:
+    get:
+      operationId: getLoanCalculations
+      tags: [loans]
+      summary: List saved loan calculations
+      responses:
+        "200":
+          description: Loan calculations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LoanCalculationResult"
+
+  /advisory:
+    get:
+      operationId: getAdvisory
+      tags: [advisory]
+      summary: Get financial advisory recommendations
+      responses:
+        "200":
+          description: Advisory recommendations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdvisoryResponse"
+
+  /reports:
+    get:
+      operationId: getReports
+      tags: [reports]
+      summary: List monthly reports
+      responses:
+        "200":
+          description: Reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MonthlyReport"
+
+  /reports/generate:
+    post:
+      operationId: generateReport
+      tags: [reports]
+      summary: Generate monthly report for current month
+      responses:
+        "200":
+          description: Report generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MonthlyReport"
+
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [scores]
+      summary: Get dashboard summary data
+      responses:
+        "200":
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardData"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +581,529 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        name:
+          type: string
+      required:
+        - email
+        - password
+        - name
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        hasProfile:
+          type: boolean
+      required:
+        - id
+        - email
+        - name
+        - hasProfile
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        profileType:
+          type: string
+          enum: [individual, small_business]
+        businessName:
+          type: string
+          nullable: true
+        currency:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - profileType
+        - currency
+        - createdAt
+
+    CreateProfileRequest:
+      type: object
+      properties:
+        profileType:
+          type: string
+          enum: [individual, small_business]
+        businessName:
+          type: string
+          nullable: true
+        currency:
+          type: string
+          default: "BTN"
+      required:
+        - profileType
+
+    IncomeEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        source:
+          type: string
+        amount:
+          type: number
+        frequency:
+          type: string
+          enum: [monthly, weekly, yearly, one_time]
+        description:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - source
+        - amount
+        - frequency
+        - createdAt
+
+    CreateIncomeEntry:
+      type: object
+      properties:
+        source:
+          type: string
+        amount:
+          type: number
+        frequency:
+          type: string
+          enum: [monthly, weekly, yearly, one_time]
+        description:
+          type: string
+          nullable: true
+      required:
+        - source
+        - amount
+        - frequency
+
+    ExpenseEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        category:
+          type: string
+        amount:
+          type: number
+        frequency:
+          type: string
+          enum: [monthly, weekly, yearly, one_time]
+        description:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - category
+        - amount
+        - frequency
+        - createdAt
+
+    CreateExpenseEntry:
+      type: object
+      properties:
+        category:
+          type: string
+        amount:
+          type: number
+        frequency:
+          type: string
+          enum: [monthly, weekly, yearly, one_time]
+        description:
+          type: string
+          nullable: true
+      required:
+        - category
+        - amount
+        - frequency
+
+    Obligation:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        name:
+          type: string
+        totalAmount:
+          type: number
+        monthlyPayment:
+          type: number
+        interestRate:
+          type: number
+          nullable: true
+        remainingTenure:
+          type: integer
+          nullable: true
+        obligationType:
+          type: string
+          enum: [loan, mortgage, credit_card, other]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - name
+        - totalAmount
+        - monthlyPayment
+        - obligationType
+        - createdAt
+
+    CreateObligation:
+      type: object
+      properties:
+        name:
+          type: string
+        totalAmount:
+          type: number
+        monthlyPayment:
+          type: number
+        interestRate:
+          type: number
+          nullable: true
+        remainingTenure:
+          type: integer
+          nullable: true
+        obligationType:
+          type: string
+          enum: [loan, mortgage, credit_card, other]
+      required:
+        - name
+        - totalAmount
+        - monthlyPayment
+        - obligationType
+
+    SavingsEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        name:
+          type: string
+        amount:
+          type: number
+        savingsType:
+          type: string
+          enum: [emergency_fund, investment, fixed_deposit, general, retirement]
+        description:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - name
+        - amount
+        - savingsType
+        - createdAt
+
+    CreateSavingsEntry:
+      type: object
+      properties:
+        name:
+          type: string
+        amount:
+          type: number
+        savingsType:
+          type: string
+          enum: [emergency_fund, investment, fixed_deposit, general, retirement]
+        description:
+          type: string
+          nullable: true
+      required:
+        - name
+        - amount
+        - savingsType
+
+    FinancialScore:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        totalScore:
+          type: number
+        category:
+          type: string
+          enum: [Excellent, Strong, Moderate, Risk, Critical]
+        savingsRatio:
+          type: number
+        debtRatio:
+          type: number
+        emergencyFundCoverage:
+          type: number
+        expenseRatio:
+          type: number
+        savingsScore:
+          type: number
+        debtScore:
+          type: number
+        emergencyScore:
+          type: number
+        expenseScore:
+          type: number
+        calculatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - totalScore
+        - category
+        - savingsRatio
+        - debtRatio
+        - emergencyFundCoverage
+        - expenseRatio
+        - savingsScore
+        - debtScore
+        - emergencyScore
+        - expenseScore
+        - calculatedAt
+
+    LoanCalculationRequest:
+      type: object
+      properties:
+        loanAmount:
+          type: number
+        interestRate:
+          type: number
+        tenureMonths:
+          type: integer
+      required:
+        - loanAmount
+        - interestRate
+        - tenureMonths
+
+    LoanCalculationResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        loanAmount:
+          type: number
+        interestRate:
+          type: number
+        tenureMonths:
+          type: integer
+        emi:
+          type: number
+        totalPayment:
+          type: number
+        totalInterest:
+          type: number
+        safeEmiMin:
+          type: number
+        safeEmiMax:
+          type: number
+        affordabilityStatus:
+          type: string
+          enum: [affordable, stretching, unaffordable]
+        healthScoreImpact:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - loanAmount
+        - interestRate
+        - tenureMonths
+        - emi
+        - totalPayment
+        - totalInterest
+        - safeEmiMin
+        - safeEmiMax
+        - affordabilityStatus
+        - healthScoreImpact
+        - createdAt
+
+    AdvisoryItem:
+      type: object
+      properties:
+        category:
+          type: string
+          enum: [savings, debt, expenses, emergency_fund]
+        title:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+          enum: [high, medium, low]
+        currentValue:
+          type: number
+          nullable: true
+        targetValue:
+          type: number
+          nullable: true
+      required:
+        - category
+        - title
+        - description
+        - priority
+
+    AdvisoryResponse:
+      type: object
+      properties:
+        recommendations:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdvisoryItem"
+        topRecommendation:
+          $ref: "#/components/schemas/AdvisoryItem"
+      required:
+        - recommendations
+        - topRecommendation
+
+    MonthlyReport:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        month:
+          type: integer
+        year:
+          type: integer
+        totalIncome:
+          type: number
+        totalExpenses:
+          type: number
+        totalSavings:
+          type: number
+        totalDebt:
+          type: number
+        netSavings:
+          type: number
+        financialScore:
+          type: number
+        scoreCategory:
+          type: string
+        recommendations:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - month
+        - year
+        - totalIncome
+        - totalExpenses
+        - totalSavings
+        - totalDebt
+        - netSavings
+        - financialScore
+        - scoreCategory
+        - recommendations
+        - createdAt
+
+    DashboardData:
+      type: object
+      properties:
+        financialScore:
+          $ref: "#/components/schemas/FinancialScore"
+        totalIncome:
+          type: number
+        totalExpenses:
+          type: number
+        netSavings:
+          type: number
+        totalObligations:
+          type: number
+        totalSavingsBalance:
+          type: number
+        topRecommendation:
+          $ref: "#/components/schemas/AdvisoryItem"
+        incomeVsExpenses:
+          type: array
+          items:
+            type: object
+            properties:
+              month:
+                type: string
+              income:
+                type: number
+              expenses:
+                type: number
+            required:
+              - month
+              - income
+              - expenses
+      required:
+        - totalIncome
+        - totalExpenses
+        - netSavings
+        - totalObligations
+        - totalSavingsBalance

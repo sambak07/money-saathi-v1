@@ -1,0 +1,128 @@
+Create a new full-stack project called “money-saathi-v1”.
+
+You are rebuilding this project from scratch with a strict Version 1 scope.
+
+Goal:
+Build a clean, stable, deployable MVP for Money Saathi as a Bhutan-focused financial health platform.
+
+Do NOT expand scope.
+Do NOT add extra modules.
+Do NOT build future vision features.
+Focus only on making Version 1 work properly.
+
+TECH STACK
+- Next.js latest with App Router
+- TypeScript
+- Tailwind CSS
+- Supabase for database and auth
+- Recharts for charts
+
+VERSION 1 MODULES ONLY
+
+1. Authentication
+- email signup/login
+- secure session handling
+
+2. Onboarding
+User selects:
+- Individual
+- Small Business
+
+3. Financial Data Entry
+Allow user to add:
+- income
+- expenses
+- obligations
+- savings
+
+4. Financial Health Engine
+Implement a deterministic score from 0–100 based on:
+- savings ratio
+- debt ratio
+- emergency fund coverage
+- expense ratio
+
+Display:
+- total score
+- score category: Excellent, Strong, Moderate, Risk, Critical
+- score breakdown by component
+
+5. Dashboard
+Show clearly:
+- financial health score
+- income vs expenses
+- net savings
+- obligations summary
+- one top recommendation
+
+6. Loan Calculator
+Inputs:
+- loan amount
+- interest rate
+- tenure
+
+Outputs:
+- EMI
+- safe EMI range
+- affordability status
+- health score impact
+
+7. Advisory Engine
+Generate simple actionable advice using user data:
+- savings improvement
+- debt safety
+- expense control
+- emergency fund guidance
+
+8. Monthly Report
+Generate a report summarizing:
+- income
+- expenses
+- savings
+- debt
+- financial health score
+- recommendations
+
+DATABASE TABLES REQUIRED
+Create and wire these tables:
+- users
+- user_profiles
+- income_entries
+- expense_entries
+- obligations
+- savings
+- financial_scores
+- loan_calculations
+- reports
+
+UI REQUIREMENTS
+- clean premium fintech UI
+- subtle Bhutan-inspired design language
+- calm, readable, trustworthy look
+- responsive layout
+- very fast data entry flow
+- dashboard should be the strongest screen
+
+PRODUCT RULES
+- do not add compare engine
+- do not add institution intelligence pages
+- do not add scraping
+- do not add national dashboards
+- do not add advanced AI workflows
+- do not add extra personas beyond Individual and Small Business
+- do not add unnecessary complexity
+
+DELIVERABLE
+Build a clean MVP where a user can:
+1. sign up
+2. choose profile
+3. enter income, expenses, obligations, and savings
+4. see financial health score
+5. calculate loan affordability
+6. receive advisory guidance
+7. view a monthly financial report
+
+FINAL REQUIREMENT
+Audit your own generated code before finishing.
+Remove dead code, unfinished modules, duplicate logic, and unnecessary files.
+The result must feel like a clean V1 product, not an overbuilt prototype.
