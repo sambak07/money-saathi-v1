@@ -1,12 +1,12 @@
-modules = ["nodejs-24"]
+modules = ["nodejs-24", "postgresql-16"]
 
-run = "cd artifacts/money-saathi-v1 && pnpm dev"
+run = "npx tsx artifacts/api-server/src/index.ts"
 
 [deployment]
 router = "application"
 deploymentTarget = "autoscale"
-build = ["bash", "-c", "pnpm install && cd artifacts/money-saathi-v1 && pnpm build"]
-run = ["bash", "-c", "cd artifacts/money-saathi-v1 && pnpm preview"]
+run = ["bash", "-c", "npx tsx artifacts/api-server/src/index.ts"]
+build = ["bash", "-c", "pnpm install && pnpm --filter @workspace/money-saathi-v1 run build && pnpm --filter @workspace/api-server run build && cp -r artifacts/money-saathi-v1/dist/public artifacts/api-server/dist/public"]
 
 [workflows]
 runButton = "Project"
@@ -22,16 +22,3 @@ timeoutMs = 20000
 
 [nix]
 channel = "stable-25_05"
-
-[[ports]]
-localPort = 3000
-externalPort = 3000
-
-[[ports]]
-localPort = 8080
-externalPort = 80
-
-[userenv]
-
-[userenv.production]
-SUPABASE_DATABASE_URL = "postgresql://postgres:MyP@ss#2026@db.oszllmgzhegnbyazafhr.supabase.co:5432/postgres"
