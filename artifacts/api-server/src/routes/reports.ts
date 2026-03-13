@@ -49,7 +49,7 @@ router.post("/reports/generate", requireAuth, async (req, res): Promise<void> =>
     netSavings: Math.round((summary.totalMonthlyIncome - summary.totalMonthlyExpenses - summary.totalMonthlyObligations) * 100) / 100,
     financialScore: score.totalScore,
     scoreCategory: score.category,
-    recommendations: advisory.map(a => a.title),
+    recommendations: advisory.map(a => `${a.title}: ${a.description}`),
   }).returning();
 
   res.json(report);
