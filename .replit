@@ -6,7 +6,7 @@ run = "npx tsx artifacts/api-server/src/index.ts"
 router = "application"
 deploymentTarget = "autoscale"
 run = ["bash", "-c", "npx tsx artifacts/api-server/src/index.ts"]
-build = ["bash", "-c", "pnpm install && pnpm --filter @workspace/money-saathi-v1 run build && pnpm --filter @workspace/api-server run build && cp -r artifacts/money-saathi-v1/dist/public artifacts/api-server/dist/public"]
+build = ["bash", "-c", "pnpm install && pnpm -r run build"]
 
 [workflows]
 runButton = "Project"
@@ -22,8 +22,3 @@ timeoutMs = 20000
 
 [nix]
 channel = "stable-25_05"
-
-[userenv]
-
-[userenv.shared]
-SUPABASE_DATABASE_URL = "postgresql://postgres:MyP%40ss%232026@aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require"
