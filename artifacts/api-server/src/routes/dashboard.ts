@@ -7,6 +7,7 @@ import {
   calculateScore, generateAdvisory, generateVerdict,
   calculateBusinessScore, generateBusinessAdvisory, generateBusinessVerdict,
 } from "../lib/financialEngine";
+import { generateIndividualInsights, generateBusinessInsights } from "../lib/insightsEngine";
 
 const router: IRouter = Router();
 
@@ -20,10 +21,13 @@ router.get("/dashboard", requireAuth, async (req, res): Promise<void> => {
   let advisory: any;
   let verdict: any;
 
+  let insights: any[] = [];
+
   if (isBusiness) {
     const bScore = calculateBusinessScore(summary);
     advisory = generateBusinessAdvisory(summary, bScore);
     verdict = generateBusinessVerdict(summary, bScore);
+    insights = generateBusinessInsights(summary, bScore);
     scoreData = {
       totalScore: bScore.totalScore,
       category: bScore.category,
@@ -46,6 +50,7 @@ router.get("/dashboard", requireAuth, async (req, res): Promise<void> => {
     scoreData = calculateScore(summary);
     advisory = generateAdvisory(summary, scoreData);
     verdict = generateVerdict(summary, scoreData);
+    insights = generateIndividualInsights(summary, scoreData);
   }
 
   const [existingScore] = await db
@@ -94,6 +99,7 @@ router.get("/dashboard", requireAuth, async (req, res): Promise<void> => {
       hasObligations: summary.totalMonthlyObligations > 0,
       hasSavings: summary.totalSavingsBalance > 0,
     },
+    insights,
   });
 });
 

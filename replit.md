@@ -84,7 +84,7 @@ users, profiles, income_entries, expense_entries, obligations, savings_entries, 
 
 - `/login` — Login/Register with split-screen design
 - `/onboarding` — Profile type selection (Individual / Small Business)
-- `/dashboard` — Mode-aware: Verdict Layer, metric cards (Individual: Net Savings/Debt Ratio/Emergency Fund, Business: Net Profit/Debt-to-Revenue/Cash Reserve), Income vs Expenses chart, Financial Timeline (5 metrics: Health Score/Income/Expenses/Net Savings/Debt Ratio), top recommendation
+- `/dashboard` — Mode-aware: Verdict Layer, metric cards (Individual: Net Savings/Debt Ratio/Emergency Fund, Business: Net Profit/Debt-to-Revenue/Cash Reserve), Financial Insights Engine (automated insight cards with severity, explanation, action, literacy links), Income vs Expenses chart, Financial Timeline (5 metrics: Health Score/Income/Expenses/Net Savings/Debt Ratio), top recommendation
 - `/data-entry` — Mode-aware tabbed CRUD (Individual: Income/Expenses/Personal Loans/Savings, Business: Revenue/Operating Expenses/Business Loans/Cash Balance)
 - `/score` — Mode-aware health score breakdown (Individual: Savings/Debt/Emergency/Expenses, Business: Profit Margin/Debt-to-Revenue/Cash Reserve/Revenue Stability)
 - `/loans` — Loan calculator with EMI, affordability analysis

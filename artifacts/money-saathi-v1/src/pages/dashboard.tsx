@@ -5,6 +5,7 @@ import { Link } from "wouter";
 import { Layout } from "@/components/layout";
 import { Card, Button, Badge } from "@/components/ui-elements";
 import { ArrowRight, TrendingUp, TrendingDown, Landmark, Shield, Lightbulb, AlertTriangle, CheckCircle2, CircleAlert, Plus, Wallet, Receipt, PiggyBank, Banknote, BarChart3, Building2, User, Activity } from "lucide-react";
+import { InsightsPanel } from "@/components/insights-panel";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend, LineChart, Line, Area, AreaChart } from "recharts";
 
 function formatNu(val: number) {
@@ -506,6 +507,10 @@ export default function Dashboard() {
         ) : (
           <>
             {isBusiness ? <BusinessMetrics data={data} dp={dp} /> : <IndividualMetrics data={data} dp={dp} />}
+
+            {(data as any).insights && (data as any).insights.length > 0 && (
+              <InsightsPanel insights={(data as any).insights} />
+            )}
 
             {hasChartData ? (
               <Card className="p-6">
